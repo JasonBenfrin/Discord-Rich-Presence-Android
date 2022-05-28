@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">Discord RPC</string>
+<!--    <string name="about">!IMPORTANT!\nThis application uses your Discord token.\nIf your phone security is weak or rooted, your token might be stolen by other malicious programs and applications.\nUse it as your own risk.\n\nThis application does not steal your token but it stores data in your phone to avoid logging in every time you use.\n\nIf you feel unsafe, you can check this application\'s repository. Click the Github button below.</string>-->
+    <string name="version">Version: 0.1.0</string>
+    <string name="menu1">Login</string>
+    <string name="menu2">Connect</string>
+    <string name="menu3">Presence</string>
+    <string name="menu4">About</string>
+    <string name="menu5">Save</string>
+    <string name="login_description">Image to update as Discord User Profile</string>
+</resources>

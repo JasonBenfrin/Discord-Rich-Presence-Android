@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/login"
+        android:enabled="true"
+        android:icon="@drawable/ic_login"
+        android:title="@string/menu1" />
+
+    <item
+        android:id="@+id/connect"
+        android:enabled="true"
+        android:icon="@drawable/ic_connect"
+        android:title="@string/menu2" />
+
+    <item
+        android:id="@+id/set"
+        android:enabled="true"
+        android:icon="@drawable/ic_presence"
+        android:title="@string/menu3" />
+
+    <item
+        android:id="@+id/store"
+        android:enabled="true"
+        android:icon="@drawable/ic_store"
+        android:title="@string/menu5" />
+
+    <item
+        android:id="@+id/about"
+        android:enabled="true"
+        android:icon="@drawable/ic_about"
+        android:title="@string/menu4" />
+</menu>
