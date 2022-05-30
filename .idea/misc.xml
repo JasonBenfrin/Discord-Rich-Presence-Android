@@ -8,11 +8,15 @@
         <entry key="..\:/Bhone/Projects/Android/DiscordRPC(Polished)/app/src/main/res/drawable-v24/ic_launcher_foreground.xml" value="0.205" />
         <entry key="..\:/Bhone/Projects/Android/DiscordRPC(Polished)/app/src/main/res/drawable/ic_launcher_background.xml" value="0.2245" />
         <entry key="..\:/Bhone/Projects/Android/DiscordRPC(Polished)/app/src/main/res/drawable/ic_login.xml" value="0.197" />
+        <entry key="..\:/Bhone/Projects/Android/DiscordRPC(Polished)/app/src/main/res/layout-land-v21/activity_main.xml" value="0.30052083333333335" />
         <entry key="..\:/Bhone/Projects/Android/DiscordRPC(Polished)/app/src/main/res/layout-land/activity_main.xml" value="0.25" />
         <entry key="..\:/Bhone/Projects/Android/DiscordRPC(Polished)/app/src/main/res/layout-land/login.xml" value="0.25" />
-        <entry key="..\:/Bhone/Projects/Android/DiscordRPC(Polished)/app/src/main/res/layout/activity_main.xml" value="0.21" />
+        <entry key="..\:/Bhone/Projects/Android/DiscordRPC(Polished)/app/src/main/res/layout-v21/activity_main.xml" value="0.33" />
+        <entry key="..\:/Bhone/Projects/Android/DiscordRPC(Polished)/app/src/main/res/layout/activity_main.xml" value="0.16" />
+        <entry key="..\:/Bhone/Projects/Android/DiscordRPC(Polished)/app/src/main/res/layout/connect.xml" value="0.2" />
         <entry key="..\:/Bhone/Projects/Android/DiscordRPC(Polished)/app/src/main/res/layout/login.xml" value="0.2" />
         <entry key="..\:/Bhone/Projects/Android/DiscordRPC(Polished)/app/src/main/res/menu/main_menu.xml" value="0.25" />
+        <entry key="..\:/Bhone/Projects/Android/DiscordRPC(Polished)/app/src/main/res/xml/test.xml" value="0.17870884993587002" />
       </map>
     </option>
   </component>
@@ -21,5 +25,12 @@
   </component>
   <component name="ProjectType">
     <option name="id" value="Android" />
+  </component>
+  <component name="VisualizationToolProject">
+    <option name="state">
+      <ProjectState>
+        <option name="scale" value="0.16" />
+      </ProjectState>
+    </option>
   </component>
 </project>
