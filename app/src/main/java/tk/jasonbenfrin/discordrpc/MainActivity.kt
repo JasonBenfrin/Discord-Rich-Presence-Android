@@ -87,7 +87,7 @@ class MainActivity : AppCompatActivity() {
         override fun onCreate(savedInstanceState: Bundle?) {
             super.onCreate(savedInstanceState)
 
-            //TODO: set WebView visibility to VISIBLE when token is not found
+            // TODO: set WebView visibility to VISIBLE when token is not found
         }
     }
 
