@@ -6,16 +6,31 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/materialToolbar"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@color/menu_background"
+        android:minHeight="?attr/actionBarSize"
+        android:theme="?attr/actionBarTheme"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/navRail"
+        app:layout_constraintTop_toTopOf="parent"
+        app:menu="@menu/top_app_bar"
+        app:title="@string/discord_rpc"
+        app:titleCentered="true"
+        app:titleTextColor="@color/menu_text" />
 
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/fragmentContainerView"
+        android:name="tk.jasonbenfrin.discordrpc.MainActivity$PresenceFragment"
         android:layout_width="0dp"
         android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="@+id/guideline10"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.0" />
+        app:layout_constraintStart_toEndOf="@+id/navRail"
+        app:layout_constraintTop_toBottomOf="@+id/materialToolbar"
+        tools:layout="@layout/presence" />
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottomBar"
@@ -24,39 +39,25 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:visibility="gone"
-        app:itemIconTint="@color/menu"
-        app:itemTextColor="@color/menu"
+        app:itemIconTint="@color/menu_text"
+        app:itemTextColor="@color/menu_text"
         app:labelVisibilityMode="selected"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:menu="@menu/main_menu" />
 
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guideline10"
+    <com.google.android.material.navigationrail.NavigationRailView
+        android:id="@+id/navRail"
+        style="@style/Widget.DiscordRPC.NavigationRail"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        app:layout_constraintGuide_begin="0dp"
-        app:layout_constraintGuide_percent="0.08" />
-
-    <FrameLayout
-        android:layout_width="0dp"
         android:layout_height="0dp"
+        app:itemIconTint="@color/menu_text"
+        app:itemTextColor="@color/menu_text"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/guideline10"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <com.google.android.material.navigationrail.NavigationRailView
-            android:id="@+id/navRail"
-            style="@style/Widget.DiscordRPC.BottomNavigationView"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            app:itemIconTint="@color/menu"
-            app:itemTextColor="@color/menu"
-            app:menu="@menu/main_menu"
-            app:menuGravity="center" />
-    </FrameLayout>
+        app:layout_constraintTop_toTopOf="parent"
+        app:menu="@menu/main_menu"
+        app:menuGravity="center" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

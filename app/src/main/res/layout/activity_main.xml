@@ -6,56 +6,72 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <androidx.fragment.app.FragmentContainerView
-        android:id="@+id/fragmentContainerView"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        app:layout_constraintBottom_toTopOf="@+id/guideline3"
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/materialToolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/menu_background"
+        android:minHeight="?attr/actionBarSize"
+        android:theme="?attr/actionBarTheme"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:menu="@menu/top_app_bar"
+        app:title="@string/discord_rpc"
+        app:titleCentered="true"
+        app:titleTextColor="@color/menu_text" />
+
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/fragmentContainerView"
+        android:name="tk.jasonbenfrin.discordrpc.MainActivity$PresenceFragment"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toTopOf="@+id/bottomBar"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/materialToolbar"
+        tools:layout="@layout/presence" />
 
     <com.google.android.material.navigationrail.NavigationRailView
         android:id="@+id/navRail"
-        style="@style/Widget.DiscordRPC.BottomNavigationView"
+        style="@style/Widget.DiscordRPC.NavigationRail"
         android:layout_width="62dp"
         android:layout_height="0dp"
         android:layout_alignParentBottom="true"
         android:visibility="gone"
-        app:itemIconTint="@color/menu"
-        app:itemTextColor="@color/menu"
+        app:itemIconTint="@color/menu_text"
+        app:itemTextColor="@color/menu_text"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:menu="@menu/main_menu"
         app:menuGravity="center" />
 
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guideline3"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintGuide_begin="0dp"
-        app:layout_constraintGuide_percent="0.9" />
-
-    <FrameLayout
-        android:id="@+id/frameLayout"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottomBar"
+        style="@style/Widget.DiscordRPC.BottomNavigationView"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/guideline3">
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:itemIconTint="@color/menu_text"
+        app:itemTextColor="@color/menu_text"
+        app:labelVisibilityMode="selected"
+        app:menu="@menu/main_menu" />
 
-        <com.google.android.material.bottomnavigation.BottomNavigationView
-            android:id="@+id/bottomBar"
-            style="@style/Widget.DiscordRPC.BottomNavigationView"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            app:itemIconTint="@color/menu"
-            app:itemTextColor="@color/menu"
-            app:labelVisibilityMode="selected"
-            app:menu="@menu/main_menu" />
-    </FrameLayout>
+    <androidx.constraintlayout.widget.Barrier
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:barrierDirection="top"
+        tools:layout_editor_absoluteX="94dp"
+        tools:layout_editor_absoluteY="149dp" />
+
+    <androidx.constraintlayout.widget.Barrier
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:barrierDirection="top"
+        tools:layout_editor_absoluteX="58dp"
+        tools:layout_editor_absoluteY="149dp" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

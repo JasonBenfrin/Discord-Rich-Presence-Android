@@ -7,6 +7,25 @@
     <string name="menu3">Presence</string>
     <string name="menu4">About</string>
     <string name="menu5">Save</string>
+    <string name="connect">Connect</string>
     <string name="login_description">Image to update as Discord User Profile</string>
+    <string name="status">Status</string>
+    <string name="rich_presence">Rich Presence</string>
+    <string name="load">Load</string>
+    <string name="more">More</string>
+    <string name="discord_rpc">Discord RPC</string>
+    <string name="connect_to_discord">Connect to Discord</string>
+    <string name="logout">Logout</string>
+    <string name="login">Login</string>
+    <string name="disclaimer">Disclaimer</string>
+    <string name="text">This app is made for Educational purposes.\nThe creator of this app is not responsible for token leaks.\nThe developer doesn\'t collect data in any way, including tokens.\nUse it as your own risk.</string>
+    <string name="creditsTo">This app was massively inspired by yzziK#3050\nCheck out his YouTube channel Vaibhav..</string>
+    <string name="credits">Credits</string>
+    <string name="about_me">About Me</string>
+    <string name="about_me_text">I am a 17 years old (2004) student developing awesome Discord bots and apps in my free time.\nI enjoy doing this. I\'m moving to Finland in about 6 months (now: 1/6/2022) for my education.</string>
+    <string name="info">Information</string>
+    <string name="information">Version: 1.0.0\nGitHub: JasonBenfrin/Discord-Rich-Presence-Android</string>
+    <string name="go_to_github">Go to Github</string>
+    <string name="infoscrollview">InfoScrollView</string>
 
 </resources>

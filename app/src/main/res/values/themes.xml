@@ -1,25 +1,38 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
-    <style name="Theme.DiscordRPC" parent="Theme.Material3.DayNight">
-        <!-- Primary brand color. -->
-        <item name="colorPrimary">@color/purple_500</item>
-        <item name="colorPrimaryVariant">@color/purple_700</item>
+    <style name="Theme.DiscordRPC" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/menu_background</item>
+        <item name="colorPrimaryVariant">@color/menu_ripple</item>
         <item name="colorOnPrimary">@color/white</item>
-        <!-- Secondary brand color. -->
-        <item name="colorSecondary">@color/teal_200</item>
-        <item name="colorSecondaryVariant">@color/teal_700</item>
+        <item name="colorSecondary">@color/menu_text</item>
+        <item name="colorSecondaryVariant">@color/menu_active</item>
         <item name="colorOnSecondary">@color/black</item>
-        <!-- Status bar color. -->
-        <item name="android:statusBarColor" tools:targetApi="l">#196585</item>
-        <!-- Customize your theme here. -->
-        <item name="windowActionBar">false</item>
-        <item name="windowNoTitle">true</item>
-        <item name="android:windowFullscreen">true</item>
+        <item name="android:statusBarColor" tools:targetApi="LOLLIPOP">#196585</item>
+        <item name="android:navigationBarColor" tools:targetApi="LOLLIPOP">@color/menu_background</item>
     </style>
+
     <style name="ThemeOverlay.DiscordRPC.BottomNavigationView" parent="">
-        <item name="colorPrimary">@color/menu_nav</item>
+        <item name="colorPrimary">@color/menu_ripple</item>
+        <item name="colorSurface">@color/menu_background</item>
+        <item name="colorSecondaryContainer">@color/menu_active</item>
     </style>
     <style name="Widget.DiscordRPC.BottomNavigationView" parent="Widget.Material3.BottomNavigationView">
         <item name="materialThemeOverlay">@style/ThemeOverlay.DiscordRPC.BottomNavigationView</item>
+    </style>
+
+    <style name="ThemeOverlay.DiscordRPC.NavigationRail" parent="">
+        <item name="colorPrimary">@color/menu_ripple</item>
+        <item name="colorSurface">@color/menu_background</item>
+        <item name="colorSecondaryContainer">@color/menu_active</item>
+    </style>
+    <style name="Widget.DiscordRPC.NavigationRail" parent="Widget.Material3.NavigationRailView">
+        <item name="materialThemeOverlay">@style/ThemeOverlay.DiscordRPC.NavigationRail</item>
+    </style>
+
+    <style name="ThemeOverlay.DiscordRPC.ConnectButton" parent="">
+        <item name="colorPrimary">@color/menu_ripple</item>
+        <item name="colorSurface">@color/menu_background</item>
+    </style>
+    <style name="Widget.DiscordRPC.ConnectButton" parent="Widget.Material3.Button.Icon">
+        <item name="materialThemeOverlay">@style/ThemeOverlay.DiscordRPC.ConnectButton</item>
     </style>
 </resources>

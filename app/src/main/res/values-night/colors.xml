@@ -8,6 +8,9 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="text">#FFFFFFFF</color>
-    <color name="menu">#CCF0FF</color>
+    <color name="menu_ripple">#5B757A</color>
+    <color name="menu_background">#2B383B</color>
+    <color name="menu_active">#66858C</color>
+    <color name="menu_text">#B8EEFA</color>
     <color name="gray">#777C85</color>
 </resources>
