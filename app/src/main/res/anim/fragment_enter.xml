@@ -4,5 +4,5 @@
         android:interpolator="@android:interpolator/accelerate_decelerate"
         android:fromAlpha="0.0"
         android:toAlpha="1.0"
-        android:duration="100" />
+        android:duration="150" />
 </set>

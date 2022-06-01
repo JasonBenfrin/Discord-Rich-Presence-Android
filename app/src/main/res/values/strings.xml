@@ -15,7 +15,7 @@
     <string name="more">More</string>
     <string name="discord_rpc">Discord RPC</string>
     <string name="connect_to_discord">Connect to Discord</string>
-    <string name="logout">Logout</string>
+    <string name="logout">Logout and Restart</string>
     <string name="login">Login</string>
     <string name="disclaimer">Disclaimer</string>
     <string name="text">This app is made for Educational purposes.\nThe creator of this app is not responsible for token leaks.\nThe developer doesn\'t collect data in any way, including tokens.\nUse it as your own risk.</string>

@@ -5,6 +5,7 @@
       <map>
         <entry key="..\:/Bhone/Projects/Android/DiscordRPC(Polished)/app/src/main/res/drawable-anydpi/ic_about.xml" value="0.1805" />
         <entry key="..\:/Bhone/Projects/Android/DiscordRPC(Polished)/app/src/main/res/drawable-anydpi/ic_action_name.xml" value="0.2245" />
+        <entry key="..\:/Bhone/Projects/Android/DiscordRPC(Polished)/app/src/main/res/drawable-anydpi/ic_back.xml" value="0.1875" />
         <entry key="..\:/Bhone/Projects/Android/DiscordRPC(Polished)/app/src/main/res/drawable-anydpi/ic_connect.xml" value="0.1805" />
         <entry key="..\:/Bhone/Projects/Android/DiscordRPC(Polished)/app/src/main/res/drawable-anydpi/ic_connect_off.xml" value="0.1805" />
         <entry key="..\:/Bhone/Projects/Android/DiscordRPC(Polished)/app/src/main/res/drawable-anydpi/ic_login.xml" value="0.1805" />
@@ -29,6 +30,7 @@
         <entry key="..\:/Bhone/Projects/Android/DiscordRPC(Polished)/app/src/main/res/layout/connect.xml" value="0.33" />
         <entry key="..\:/Bhone/Projects/Android/DiscordRPC(Polished)/app/src/main/res/layout/info.xml" value="0.25" />
         <entry key="..\:/Bhone/Projects/Android/DiscordRPC(Polished)/app/src/main/res/layout/login.xml" value="0.25" />
+        <entry key="..\:/Bhone/Projects/Android/DiscordRPC(Polished)/app/src/main/res/layout/login_webview.xml" value="0.16" />
         <entry key="..\:/Bhone/Projects/Android/DiscordRPC(Polished)/app/src/main/res/layout/presence.xml" value="0.2" />
         <entry key="..\:/Bhone/Projects/Android/DiscordRPC(Polished)/app/src/main/res/layout/save.xml" value="0.21666666666666667" />
         <entry key="..\:/Bhone/Projects/Android/DiscordRPC(Polished)/app/src/main/res/menu/main_menu.xml" value="0.25" />
