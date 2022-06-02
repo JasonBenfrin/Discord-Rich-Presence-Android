@@ -12,5 +12,6 @@
     <color name="menu_background">#2B383B</color>
     <color name="menu_active">#66858C</color>
     <color name="menu_text">#B8EEFA</color>
+    <color name="discord_blue">#808AF1</color>
     <color name="gray">#777C85</color>
 </resources>
