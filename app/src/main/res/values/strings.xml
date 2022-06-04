@@ -6,14 +6,13 @@
     <string name="menu2">Connect</string>
     <string name="menu3">Presence</string>
     <string name="menu4">About</string>
-    <string name="menu5">Save</string>
     <string name="connect">Connect</string>
     <string name="login_description">Image to update as Discord User Profile</string>
     <string name="status">Status</string>
     <string name="rich_presence">Rich Presence</string>
     <string name="load">Load</string>
-    <string name="more">More</string>
-    <string name="discord_rpc">Discord RPC</string>
+    <string name="more">Theme</string>
+    <string name="discord_rpc">Discord Presence</string>
     <string name="connect_to_discord">Connect to Discord</string>
     <string name="logout">Logout and Restart</string>
     <string name="login">Login</string>
@@ -27,5 +26,14 @@
     <string name="information">Version: 1.0.0\nGitHub: JasonBenfrin/Discord-Rich-Presence-Android</string>
     <string name="go_to_github">Go to Github</string>
     <string name="infoscrollview">InfoScrollView</string>
-
+    <string name="settings">Settings</string>
+    <string name="back">Back</string>
+    <string name="show_all">Show All</string>
+    <string-array name="status_types">
+        <item>online</item>
+        <item>dnd</item>
+        <item>idle</item>
+        <item>invisible</item>
+        <item>offline</item>
+    </string-array>
 </resources>

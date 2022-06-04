@@ -6,6 +6,7 @@
         <item name="colorSecondary">@color/menu_text</item>
         <item name="colorSecondaryVariant">@color/menu_active</item>
         <item name="colorOnSecondary">@color/black</item>
+        <item name="switchStyle">@style/Widget.DiscordRPC.Switches</item>
         <item name="android:statusBarColor" tools:targetApi="LOLLIPOP">#196585</item>
         <item name="android:navigationBarColor" tools:targetApi="LOLLIPOP">@color/menu_background</item>
     </style>
@@ -34,5 +35,15 @@
     </style>
     <style name="Widget.DiscordRPC.ConnectButton" parent="Widget.Material3.Button.Icon">
         <item name="materialThemeOverlay">@style/ThemeOverlay.DiscordRPC.ConnectButton</item>
+    </style>
+
+    <style name="ThemeOverlay.DiscordRPC.Switches" parent="">
+        <item name="colorPrimary">@color/discord_blue</item>
+        <item name="colorPrimaryContainer">@color/discord_blue</item>
+        <item name="colorOnSurface">@color/discord_blue</item>
+        <item name="colorOutline">@color/discord_blue</item>
+    </style>
+    <style name="Widget.DiscordRPC.Switches" parent="Widget.Material3.CompoundButton.Switch">
+        <item name="materialThemeOverlay">@style/ThemeOverlay.DiscordRPC.Switches</item>
     </style>
 </resources>

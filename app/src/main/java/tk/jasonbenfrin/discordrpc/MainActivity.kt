@@ -6,6 +6,7 @@ import android.content.Intent
 import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Typeface
 import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
@@ -16,30 +17,60 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.content.ContextCompat
+import androidx.core.view.get
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
+import androidx.viewpager2.adapter.FragmentStateAdapter
+import androidx.viewpager2.widget.ViewPager2
+import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
 import com.google.android.material.navigationrail.NavigationRailView
+import com.google.android.material.tabs.TabLayout
+import com.google.android.material.tabs.TabLayoutMediator
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import okhttp3.*
 import java.io.BufferedReader
 import java.io.File
 import java.io.FileReader
-import java.lang.Exception
 import java.net.URL
 import java.util.concurrent.Executors
 
 class MainActivity : AppCompatActivity() {
+    // I did not know that "inner" class existed :(
     private var previousFragment : Int? = null
     private var previousOrientation : Int = Configuration.ORIENTATION_UNDEFINED
+
+    enum class THEME(val theme : Int, val drawable : Int) {
+        DARK(AppCompatDelegate.MODE_NIGHT_YES, R.drawable.ic_theme_dark),
+        LIGHT(AppCompatDelegate.MODE_NIGHT_NO, R.drawable.ic_theme_light),
+        SYSTEM(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM, R.drawable.ic_theme_system)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         requestWindowFeature(Window.FEATURE_NO_TITLE)
         window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN)
         setContentView(R.layout.activity_main)
+
+        val topAppBar = findViewById<MaterialToolbar>(R.id.materialToolbar)
+        val text = topAppBar.getChildAt(0) as TextView
+        text.typeface = Typeface.createFromAsset(assets, "fonts/GintoNord-Medium.ttf")
+        text.textSize = 25f
+        val themeButton = topAppBar.menu[0]
+        themeButton.setOnMenuItemClickListener { menuItem -> themeChangeListener(menuItem) }
+        val file = File(applicationContext.filesDir, "theme")
+        if(file.exists()) {
+            val theme = file.readText(Charsets.UTF_8).toInt()
+            AppCompatDelegate.setDefaultNightMode(theme)
+            when(theme) {
+                THEME.DARK.theme -> themeButton.icon = ContextCompat.getDrawable(baseContext, THEME.DARK.drawable)
+                THEME.LIGHT.theme -> themeButton.icon = ContextCompat.getDrawable(baseContext, THEME.LIGHT.drawable)
+                THEME.SYSTEM.theme -> themeButton.icon = ContextCompat.getDrawable(baseContext, THEME.SYSTEM.drawable)
+            }
+        }
 
         previousOrientation = resources.configuration.orientation
         if (savedInstanceState == null) {
@@ -55,13 +86,29 @@ class MainActivity : AppCompatActivity() {
         findViewById<NavigationRailView>(R.id.navRail).setOnItemSelectedListener{ item -> itemSelectedListener(item) }
     }
 
-    // UI: Set NavigationBars' selected item on orientation and refresh
     @SuppressLint("CutPasteId")
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
         val bottomBar : BottomNavigationView = findViewById(R.id.bottomBar)
         val navRail : NavigationRailView = findViewById(R.id.navRail)
         setContentView(R.layout.activity_main)
+        findViewById<NavigationRailView>(R.id.navRail).setOnItemSelectedListener{ item -> itemSelectedListener(item) }
+        val topAppBar = findViewById<MaterialToolbar>(R.id.materialToolbar)
+        val text = topAppBar.getChildAt(0) as TextView
+        text.typeface = Typeface.createFromAsset(assets, "fonts/GintoNord-Medium.ttf")
+        text.textSize = 25f
+        val themeButton = topAppBar.menu[0]
+        val file = File(applicationContext.filesDir, "theme")
+        if(file.exists()) {
+            val theme = file.readText(Charsets.UTF_8).toInt()
+            AppCompatDelegate.setDefaultNightMode(theme)
+            when(theme) {
+                THEME.DARK.theme -> themeButton.icon = ContextCompat.getDrawable(baseContext, THEME.DARK.drawable)
+                THEME.LIGHT.theme -> themeButton.icon = ContextCompat.getDrawable(baseContext, THEME.LIGHT.drawable)
+                THEME.SYSTEM.theme -> themeButton.icon = ContextCompat.getDrawable(baseContext, THEME.SYSTEM.drawable)
+            }
+        }
+        themeButton.setOnMenuItemClickListener { menuItem -> themeChangeListener(menuItem) }
         val newBottomBar : BottomNavigationView = findViewById(R.id.bottomBar)
         val newNavRail : NavigationRailView = findViewById(R.id.navRail)
         when (newConfig.orientation) {
@@ -89,24 +136,53 @@ class MainActivity : AppCompatActivity() {
         previousOrientation = newConfig.orientation
     }
 
-    private fun itemSelectedListener(id : MenuItem ) : Boolean {
-        val fragmentManager = supportFragmentManager.beginTransaction()
+    private fun themeChangeListener( menuItem : MenuItem ) : Boolean {
+        if(menuItem.itemId != R.id.more) return false
+        val file = File(applicationContext.filesDir, "theme")
+        return if(!file.exists()) {
+            file.writeText(THEME.DARK.theme.toString())
+            AppCompatDelegate.setDefaultNightMode(THEME.DARK.theme)
+            menuItem.icon = ContextCompat.getDrawable(applicationContext, THEME.DARK.drawable)
+            true
+        } else {
+            when(file.readText(Charsets.UTF_8).toInt()) {
+                THEME.DARK.theme -> {
+                    file.writeText(THEME.LIGHT.theme.toString())
+                    AppCompatDelegate.setDefaultNightMode(THEME.LIGHT.theme)
+                    menuItem.icon = ContextCompat.getDrawable(applicationContext, THEME.LIGHT.drawable)
+                }
+                THEME.LIGHT.theme -> {
+                    file.writeText(THEME.SYSTEM.theme.toString())
+                    AppCompatDelegate.setDefaultNightMode(THEME.SYSTEM.theme)
+                    menuItem.icon = ContextCompat.getDrawable(applicationContext, THEME.SYSTEM.drawable)
+                }
+                THEME.SYSTEM.theme -> {
+                    file.writeText(THEME.DARK.theme.toString())
+                    AppCompatDelegate.setDefaultNightMode(THEME.DARK.theme)
+                    menuItem.icon = ContextCompat.getDrawable(applicationContext, THEME.DARK.drawable)
+                }
+            }
+            true
+        }
+    }
+
+    private fun itemSelectedListener( id : MenuItem ) : Boolean {
+        val fragmentTransaction = supportFragmentManager.beginTransaction()
             .setReorderingAllowed(true)
             .setCustomAnimations(R.anim.fragment_enter, R.anim.fragment_exit, R.anim.fragment_enter, R.anim.fragment_exit)
         if( previousFragment != null && previousFragment == id.itemId && previousOrientation == resources.configuration.orientation) return false
         when (id.itemId) {
-            R.id.login -> fragmentManager.replace(R.id.fragmentContainerView, LoginFragment(supportFragmentManager, this))
-            R.id.set -> fragmentManager.replace(R.id.fragmentContainerView, PresenceFragment())
-            R.id.store -> fragmentManager.replace(R.id.fragmentContainerView, Save())
-            R.id.about -> fragmentManager.replace(R.id.fragmentContainerView, Info())
+            R.id.login -> fragmentTransaction.replace(R.id.fragmentContainerView, LoginFragment())
+            R.id.set -> fragmentTransaction.replace(R.id.fragmentContainerView, PresenceFragment())
+            R.id.about -> fragmentTransaction.replace(R.id.fragmentContainerView, Info())
             else -> return false
         }
         previousFragment = id.itemId
-        fragmentManager.commit()
+        fragmentTransaction.commit()
         return true
     }
 
-    class LoginFragment(private val supportFragmentManager : FragmentManager, private val main: MainActivity) : Fragment() {
+    class LoginFragment : Fragment() {
         private var token : String? = null
         private lateinit var viewT : View
 
@@ -125,7 +201,7 @@ class MainActivity : AppCompatActivity() {
             val image = view.findViewById<ImageView>(R.id.imageView6)
             login.setOnClickListener { login() }
             logout.setOnClickListener { logout() }
-            token = context?.let { MainActivity().getToken(it) }
+            token = context?.let { getToken(it) }
             if (token == null) {
                 image.visibility = View.GONE
                 textView.text = "You are not logged in, please log in first"
@@ -140,7 +216,7 @@ class MainActivity : AppCompatActivity() {
                     Thread {
                         val request =
                             Request.Builder().url("wss://gateway.discord.gg/?v=9&encoding=json").build()
-                        val listener = context?.let { TestDiscordGatewayWebSocket(this, it, main) }
+                        val listener = context?.let { TestDiscordGatewayWebSocket(this, it, view) }
                         val client = OkHttpClient()
                         client.newWebSocket(request, listener)
                         client.dispatcher().executorService().shutdown()
@@ -175,10 +251,10 @@ class MainActivity : AppCompatActivity() {
         }
 
         private fun login () {
-            supportFragmentManager.beginTransaction()
+            parentFragmentManager.beginTransaction()
                 .setReorderingAllowed(true)
                 .setCustomAnimations(R.anim.fragment_enter, R.anim.fragment_exit, R.anim.fragment_enter, R.anim.fragment_exit)
-                .replace(R.id.fragmentContainerView, LoginWebFragment(supportFragmentManager, main))
+                .replace(R.id.fragmentContainerView, LoginWebFragment())
                 .commit()
         }
 
@@ -195,12 +271,7 @@ class MainActivity : AppCompatActivity() {
             var image: Bitmap?
             executor.execute{
                 val file = File(context.filesDir, "user")
-                val bufferedReader = BufferedReader(FileReader(file))
-                var str = ""
-                while (true) {
-                    val bufferedLine = bufferedReader.readLine() ?: break
-                    str += bufferedLine
-                }
+                val str = file.readText(Charsets.UTF_8)
                 try {
                     val input = URL(str.split("#")[2]+"?size=512").openStream()
                     image = BitmapFactory.decodeStream(input)
@@ -213,12 +284,7 @@ class MainActivity : AppCompatActivity() {
 
         @SuppressLint("SetTextI18n")
         fun updateUser(context: Context, file: File, textView : TextView, imageView: ImageView) {
-            var string = ""
-            val bufferedReader = BufferedReader(FileReader(file))
-            while (true) {
-                val bufferLine = bufferedReader.readLine() ?: break
-                string += bufferLine
-            }
+            val string = file.readText(Charsets.UTF_8)
             if (string != "") {
                 val user = string.split("#")
                 userAvatar(context, imageView)
@@ -237,12 +303,31 @@ class MainActivity : AppCompatActivity() {
             super.onCreateView(inflater, container, savedInstanceState)
             return inflater.inflate(R.layout.presence, container,false)
         }
-    }
 
-    class Save : Fragment() {
-        override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?) : View? {
-            super.onCreateView(inflater, container, savedInstanceState)
-            return inflater.inflate(R.layout.save, container,false)
+        override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+            super.onViewCreated(view, savedInstanceState)
+            val viewPager2 = view.findViewById<ViewPager2>(R.id.viewpager)
+            viewPager2.adapter = ViewPagerAdapter()
+            val tabLayout = view.findViewById<TabLayout>(R.id.tabLayout)
+            TabLayoutMediator(tabLayout, viewPager2) { tab , position ->
+                when (position) {
+                    0 -> tab.text = resources.getText(R.string.status)
+                    1 -> tab.text = resources.getText(R.string.rich_presence)
+                    2 -> tab.text = resources.getText(R.string.load)
+                }
+            }.attach()
+        }
+
+        private inner class ViewPagerAdapter : FragmentStateAdapter(this) {
+            override fun getItemCount(): Int = 3
+
+            override fun createFragment(position: Int): Fragment {
+                return when(position) {
+                    0 -> Status()
+                    1 -> RichPresence()
+                    else -> Load()
+                }
+            }
         }
     }
 
@@ -263,7 +348,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    class LoginWebFragment(private val supportFragmentManager: FragmentManager, private val main : MainActivity) : Fragment() {
+    class LoginWebFragment : Fragment() {
         override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?) : View? {
             super.onCreateView(inflater, container, savedInstanceState)
             return inflater.inflate(R.layout.login_webview, container,false)
@@ -292,14 +377,35 @@ class MainActivity : AppCompatActivity() {
         }
 
         private fun back() {
-            supportFragmentManager.beginTransaction()
+            parentFragmentManager.beginTransaction()
                 .setReorderingAllowed(true)
-                .replace(R.id.fragmentContainerView, LoginFragment(supportFragmentManager, main))
+                .replace(R.id.fragmentContainerView, LoginFragment())
                 .commit()
         }
     }
 
-    private class TestDiscordGatewayWebSocket(private val fragment : LoginFragment, private val context : Context, private val main : MainActivity) : WebSocketListener() {
+    class Status : Fragment() {
+        override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?) : View? {
+            super.onCreateView(inflater, container, savedInstanceState)
+            return inflater.inflate(R.layout.status, container,false)
+        }
+    }
+
+    class RichPresence : Fragment() {
+        override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?) : View? {
+            super.onCreateView(inflater, container, savedInstanceState)
+            return inflater.inflate(R.layout.rich_presence, container,false)
+        }
+    }
+
+    class Load : Fragment() {
+        override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?) : View? {
+            super.onCreateView(inflater, container, savedInstanceState)
+            return inflater.inflate(R.layout.load, container,false)
+        }
+    }
+
+    private class TestDiscordGatewayWebSocket(private val fragment : LoginFragment, private val context : Context, private val view : View) : WebSocketListener() {
         private var seq : Int? = null
         private lateinit var webSocket : WebSocket
 
@@ -313,22 +419,21 @@ class MainActivity : AppCompatActivity() {
             val json = JsonParser.parseString(text).asJsonObject
             when(json.get("op").asInt) {
                 10 -> {
-                    main.identify(webSocket, context)
+                    identify(webSocket, context)
                 }
                 0 -> {
                     seq = json.get("s").asInt
                     if(json.get("t").asString == "READY") {
                         val d = json.get("d").asJsonObject
                         val user = d.get("user").asJsonObject
-                        var avatar : String = ""
-                        if(user.get("avatar").isJsonNull) {
-                            avatar = "https://cdn.discordapp.com/embed/avatars/${user.get("discriminator").asInt%5}.png"
+                        val avatar: String = if(user.get("avatar").isJsonNull) {
+                            "https://cdn.discordapp.com/embed/avatars/${user.get("discriminator").asInt%5}.png"
                         }else{
-                            avatar = "https://cdn.discordapp.com/avatars/${user.get("id").asString}/${user.get("avatar").asString}.png"
+                            "https://cdn.discordapp.com/avatars/${user.get("id").asString}/${user.get("avatar").asString}.png"
                         }
                         fragment.updateView(avatar, user.get("username").asString, user.get("discriminator").asString)
                         val file = File(context.filesDir, "user")
-                        fragment.updateUser(context, file, main.findViewById(R.id.textView4), main.findViewById(R.id.imageView6))
+                        fragment.updateUser(context, file, view.findViewById(R.id.textView4), view.findViewById(R.id.imageView6))
                         webSocket.close(1000, "Job done")
                     }
                 }
@@ -341,45 +446,44 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun identify(webSocket: WebSocket, context: Context) {
-        val properties = JsonObject()
-        properties.addProperty("\$os","linux")
-        properties.addProperty("\$browser","unknown")
-        properties.addProperty("\$device","unknown")
-        val d = JsonObject()
-        d.addProperty("token", getToken(context))
-        d.addProperty("intents", 0)
-        d.add("properties", properties)
-        val payload = JsonObject()
-        payload.addProperty("op",2)
-        payload.add("d", d)
-        webSocket.send(payload.toString())
-    }
+    companion object {
+        private fun identify(webSocket: WebSocket, context: Context) {
+            val properties = JsonObject()
+            properties.addProperty("\$os","linux")
+            properties.addProperty("\$browser","unknown")
+            properties.addProperty("\$device","unknown")
+            val d = JsonObject()
+            d.addProperty("token", getToken(context))
+            d.addProperty("intents", 0)
+            d.add("properties", properties)
+            val payload = JsonObject()
+            payload.addProperty("op",2)
+            payload.add("d", d)
+            webSocket.send(payload.toString())
+        }
 
-    fun hearbeatSend( webSocket: WebSocket, seq: Int? ) {
-        val json = JsonObject()
-        json.addProperty("op","1")
-        json.addProperty("d", seq)
-        webSocket.send(json.toString())
-    }
+        private fun getToken(context : Context) : String? {
+            try {
+                val listFiles : Array<File> = File( context.filesDir.parentFile, "app_webview/Default/Local Storage/leveldb" ).listFiles { _, str -> str.endsWith(".log") } as Array<File>
+                if (listFiles.isEmpty()) return null
+                var bufferLine : String
+                val bufferedReader = BufferedReader(FileReader(listFiles[0]))
+                do {
+                    bufferLine = bufferedReader.readLine()
+                } while (!bufferLine.contains("token") && bufferLine != null)
+                val sub1 = bufferLine.substring(bufferLine.indexOf("token") + 5)
+                val sub2 = sub1.substring(sub1.indexOf("\"")+1)
+                return sub2.substring(0, sub2.indexOf("\""))
+            }catch (_ : Throwable) {
+                return null
+            }
+        }
 
-    private fun getToken(context : Context) : String? {
-        try {
-            val listFiles : Array<File> = File( context.filesDir.parentFile, "app_webview/Default/Local Storage/leveldb" ).listFiles { _, str -> str.endsWith(".log") } as Array<File>
-            if (listFiles.isEmpty()) return null
-            var bufferLine : String
-            val bufferedReader = BufferedReader(FileReader(listFiles[0]))
-            do {
-                bufferLine = bufferedReader.readLine()
-            } while (!bufferLine.contains("token") && bufferLine != null)
-            val sub1 = bufferLine.substring(bufferLine.indexOf("token") + 5)
-            val sub2 = sub1.substring(sub1.indexOf("\"")+1)
-            return sub2.substring(0, sub2.indexOf("\""))
-        }catch (_ : Throwable) {
-            return null
+        private fun heartbeatSend( webSocket: WebSocket, seq: Int? ) {
+            val json = JsonObject()
+            json.addProperty("op","1")
+            json.addProperty("d", seq)
+            webSocket.send(json.toString())
         }
     }
-
-    // UI: TabLayout and ViewPager2 Synchronise
-
 }
