@@ -5,6 +5,7 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="text">#FF000000</color>
+    <color name="text_inverse">#FFFFFFFF</color>
     <color name="menu_ripple">#A6D6E0</color>
     <color name="menu_background">#C5F2FC</color>
     <color name="menu_active">#B77CB8C5</color>
@@ -12,4 +13,5 @@
     <color name="discord_blue">#5865F2</color>
     <color name="discord_blue_ripple">#64B2FF</color>
     <color name="gray">#4f545c</color>
+    <color name="active_thumb">#257083</color>
 </resources>

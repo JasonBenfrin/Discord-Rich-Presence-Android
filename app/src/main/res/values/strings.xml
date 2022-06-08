@@ -1,6 +1,5 @@
 <resources>
-    <string name="app_name">Discord RPC</string>
-<!--    <string name="about">!IMPORTANT!\nThis application uses your Discord token.\nIf your phone security is weak or rooted, your token might be stolen by other malicious programs and applications.\nUse it as your own risk.\n\nThis application does not steal your token but it stores data in your phone to avoid logging in every time you use.\n\nIf you feel unsafe, you can check this application\'s repository. Click the Github button below.</string>-->
+    <string name="app_name">Discord Presence</string>
     <string name="version">Version: 0.1.0</string>
     <string name="menu1">Login</string>
     <string name="menu2">Connect</string>
@@ -29,11 +28,28 @@
     <string name="settings">Settings</string>
     <string name="back">Back</string>
     <string name="show_all">Show All</string>
+    <string name="since">Since</string>
+    <string name="afk">AFK</string>
+    <string name="set">Set</string>
+    <string name="cancel">Cancel</string>
     <string-array name="status_types">
-        <item>online</item>
-        <item>dnd</item>
-        <item>idle</item>
-        <item>invisible</item>
-        <item>offline</item>
+        <item>Online</item>
+        <item>Idle</item>
+        <item>Do not Disturb</item>
+        <item>Invisible</item>
+        <item>Offline</item>
+    </string-array>
+    <string name="notification_service_id">1</string>
+    <string name="notification_service_name">Background Service</string>
+    <string name="notification_service_description">Notification for background presence</string>
+    <string name="activity">Activity</string>
+    <string name="name">Name</string>
+    <string-array name="activity_types">
+        <item>Playing</item>
+        <item>Streaming</item>
+        <item>Listening</item>
+        <item>Watching</item>
+        <item>Custom</item>
+        <item>Competing</item>
     </string-array>
 </resources>

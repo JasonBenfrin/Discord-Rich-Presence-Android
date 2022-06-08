@@ -8,6 +8,7 @@
         <entry key="..\:/Bhone/Projects/Android/DiscordRPC(Polished)/app/src/main/res/drawable-anydpi/ic_back.xml" value="0.1875" />
         <entry key="..\:/Bhone/Projects/Android/DiscordRPC(Polished)/app/src/main/res/drawable-anydpi/ic_connect.xml" value="0.1805" />
         <entry key="..\:/Bhone/Projects/Android/DiscordRPC(Polished)/app/src/main/res/drawable-anydpi/ic_connect_off.xml" value="0.1805" />
+        <entry key="..\:/Bhone/Projects/Android/DiscordRPC(Polished)/app/src/main/res/drawable-anydpi/ic_connecting.xml" value="0.2045" />
         <entry key="..\:/Bhone/Projects/Android/DiscordRPC(Polished)/app/src/main/res/drawable-anydpi/ic_login.xml" value="0.1805" />
         <entry key="..\:/Bhone/Projects/Android/DiscordRPC(Polished)/app/src/main/res/drawable-anydpi/ic_more.xml" value="0.2245" />
         <entry key="..\:/Bhone/Projects/Android/DiscordRPC(Polished)/app/src/main/res/drawable-anydpi/ic_presence.xml" value="0.1805" />
@@ -35,12 +36,13 @@
         <entry key="..\:/Bhone/Projects/Android/DiscordRPC(Polished)/app/src/main/res/layout-v21/activity_main.xml" value="0.33" />
         <entry key="..\:/Bhone/Projects/Android/DiscordRPC(Polished)/app/src/main/res/layout/activity_main.xml" value="0.21067415730337077" />
         <entry key="..\:/Bhone/Projects/Android/DiscordRPC(Polished)/app/src/main/res/layout/connect.xml" value="0.33" />
+        <entry key="..\:/Bhone/Projects/Android/DiscordRPC(Polished)/app/src/main/res/layout/date_time_picker.xml" value="0.16" />
         <entry key="..\:/Bhone/Projects/Android/DiscordRPC(Polished)/app/src/main/res/layout/info.xml" value="0.25" />
-        <entry key="..\:/Bhone/Projects/Android/DiscordRPC(Polished)/app/src/main/res/layout/load.xml" value="0.19583333333333333" />
+        <entry key="..\:/Bhone/Projects/Android/DiscordRPC(Polished)/app/src/main/res/layout/load.xml" value="0.33" />
         <entry key="..\:/Bhone/Projects/Android/DiscordRPC(Polished)/app/src/main/res/layout/login.xml" value="0.25" />
         <entry key="..\:/Bhone/Projects/Android/DiscordRPC(Polished)/app/src/main/res/layout/login_webview.xml" value="0.16" />
         <entry key="..\:/Bhone/Projects/Android/DiscordRPC(Polished)/app/src/main/res/layout/presence.xml" value="0.2" />
-        <entry key="..\:/Bhone/Projects/Android/DiscordRPC(Polished)/app/src/main/res/layout/rich_presence.xml" value="0.19583333333333333" />
+        <entry key="..\:/Bhone/Projects/Android/DiscordRPC(Polished)/app/src/main/res/layout/rich_presence.xml" value="0.5" />
         <entry key="..\:/Bhone/Projects/Android/DiscordRPC(Polished)/app/src/main/res/layout/save.xml" value="0.21666666666666667" />
         <entry key="..\:/Bhone/Projects/Android/DiscordRPC(Polished)/app/src/main/res/layout/settings.xml" value="0.25" />
         <entry key="..\:/Bhone/Projects/Android/DiscordRPC(Polished)/app/src/main/res/layout/status.xml" value="0.5" />

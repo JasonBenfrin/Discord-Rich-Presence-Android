@@ -1,12 +1,14 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <style name="Theme.DiscordRPC" parent="Theme.Material3.DayNight.NoActionBar">
-        <item name="colorPrimary">@color/menu_background</item>
-        <item name="colorPrimaryVariant">@color/menu_ripple</item>
-        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorPrimary">@color/menu_text</item>
+        <item name="colorPrimaryVariant">@color/menu_active</item>
+        <item name="colorOnPrimary">@color/menu_background</item>
         <item name="colorSecondary">@color/menu_text</item>
+        <item name="colorOnSecondary">@color/white</item>
         <item name="colorSecondaryVariant">@color/menu_active</item>
-        <item name="colorOnSecondary">@color/black</item>
+
         <item name="switchStyle">@style/Widget.DiscordRPC.Switches</item>
+        <item name="checkboxStyle">@style/Widget.DiscordRPC.CheckBox</item>
         <item name="android:statusBarColor" tools:targetApi="LOLLIPOP">#196585</item>
         <item name="android:navigationBarColor" tools:targetApi="LOLLIPOP">@color/menu_background</item>
     </style>
@@ -38,12 +40,20 @@
     </style>
 
     <style name="ThemeOverlay.DiscordRPC.Switches" parent="">
-        <item name="colorPrimary">@color/discord_blue</item>
-        <item name="colorPrimaryContainer">@color/discord_blue</item>
-        <item name="colorOnSurface">@color/discord_blue</item>
-        <item name="colorOutline">@color/discord_blue</item>
+        <item name="colorPrimary">@color/active_thumb</item>
+        <item name="colorPrimaryContainer">@color/menu_active</item>
     </style>
     <style name="Widget.DiscordRPC.Switches" parent="Widget.Material3.CompoundButton.Switch">
         <item name="materialThemeOverlay">@style/ThemeOverlay.DiscordRPC.Switches</item>
+    </style>
+
+    <style name="ThemeOverlay.DiscordRPC.CheckBox" parent="">
+        <item name="colorPrimary">@color/menu_text</item>
+    </style>
+    <style name="Widget.DiscordRPC.CheckBox" parent="Widget.Material3.CompoundButton.CheckBox">
+        <item name="materialThemeOverlay">@style/ThemeOverlay.DiscordRPC.CheckBox</item>
+    </style>
+    <style name="asdf" parent="ThemeOverlay.MaterialComponents.TimePicker">
+
     </style>
 </resources>
