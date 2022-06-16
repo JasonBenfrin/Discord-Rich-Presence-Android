@@ -25,6 +25,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.ContextCompat
 import androidx.core.view.get
+import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.viewpager2.adapter.FragmentStateAdapter
@@ -43,6 +44,7 @@ import com.google.android.material.tabs.TabLayoutMediator
 import com.google.android.material.timepicker.MaterialTimePicker
 import com.google.android.material.timepicker.TimeFormat
 import com.google.gson.JsonArray
+import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import com.jakewharton.processphoenix.ProcessPhoenix
@@ -50,10 +52,10 @@ import okhttp3.*
 import java.io.BufferedReader
 import java.io.File
 import java.io.FileReader
+import java.lang.IllegalArgumentException
 import java.net.URL
 import java.util.*
 import java.util.concurrent.Executors
-import kotlin.system.exitProcess
 
 class MainActivity : AppCompatActivity() {
     private var previousFragment : Int? = null
@@ -105,8 +107,12 @@ class MainActivity : AppCompatActivity() {
             val channel = NotificationChannel(getString(R.string.notification_service_id), getString(R.string.notification_service_name), NotificationManager.IMPORTANCE_LOW).apply {
                 description = getString(R.string.notification_service_description)
             }
+            val channel2 = NotificationChannel(getString(R.string.notification_error_id), getString(R.string.notification_error_name), NotificationManager.IMPORTANCE_HIGH).apply {
+                description = getString(R.string.notification_error_description)
+            }
             val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             notificationManager.createNotificationChannel(channel)
+            notificationManager.createNotificationChannel(channel2)
         }
     }
 
@@ -350,10 +356,17 @@ class MainActivity : AppCompatActivity() {
 
     class PresenceFragment : Fragment() {
         private var receiver = object : BroadcastReceiver() {
+            @SuppressLint("SetTextI18n")
             override fun onReceive(p0: Context?, p1: Intent?) {
                 val connect = view?.findViewById<ExtendedFloatingActionButton>(R.id.connect)
                 connect?.icon = ContextCompat.getDrawable(requireContext(), R.drawable.ic_connect_off)
                 connect?.text = "Disconnect"
+            }
+        }
+
+        private var accidentReceiver = object : BroadcastReceiver() {
+            override fun onReceive(p0: Context?, p1: Intent?) {
+                connect()
             }
         }
 
@@ -364,7 +377,6 @@ class MainActivity : AppCompatActivity() {
 
         @SuppressLint("UseCompatLoadingForDrawables", "SetTextI18n")
         override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-            // TODO: Check for currently running services and change button listeners accordingly
             super.onViewCreated(view, savedInstanceState)
             val viewPager2 = view.findViewById<ViewPager2>(R.id.viewpager)
             viewPager2.adapter = ViewPagerAdapter()
@@ -376,18 +388,29 @@ class MainActivity : AppCompatActivity() {
                     2 -> tab.text = resources.getText(R.string.load)
                 }
             }.attach()
-            view.findViewById<ExtendedFloatingActionButton>(R.id.connect).setOnClickListener { connect(it) }
+            val connect = view.findViewById<ExtendedFloatingActionButton>(R.id.connect)
+            if(Service.SERVICE_RUNNING) {
+                connect?.icon = ContextCompat.getDrawable(requireContext(), R.drawable.ic_connect_off)
+                connect?.text = "Disconnect"
+                connect.setOnClickListener { disconnect(it) }
+            }
+            else connect.setOnClickListener { connectFancy(it) }
         }
 
         @SuppressLint("SetTextI18n")
-        fun connect(view : View) {
+        private fun connectFancy(view: View) {
+            val connect = view.findViewById<ExtendedFloatingActionButton>(R.id.connect)
+            connect.icon = ContextCompat.getDrawable(requireContext(), R.drawable.ic_connecting)
+            connect.text = "Connecting..."
+            connect.setOnClickListener { disconnect(it) }
+            connect()
+        }
+
+        fun connect() {
             if(getToken(requireContext()) == null) {
                 Toast.makeText(requireContext(), "Please Login first", Toast.LENGTH_SHORT).show()
                 return
             }
-            val connect = view.findViewById<ExtendedFloatingActionButton>(R.id.connect)
-            connect.icon = ContextCompat.getDrawable(requireContext(), R.drawable.ic_connecting)
-            connect.text = "Connecting..."
             val file = File(context?.cacheDir, "payload")
             if(!file.exists()) {
                 Toast.makeText(context, "Oops, something went wrong! Please restart this app.", Toast.LENGTH_SHORT).show()
@@ -402,19 +425,20 @@ class MainActivity : AppCompatActivity() {
                 }
             }.start()
             requireContext().registerReceiver(receiver, IntentFilter("ServiceToConnectButton"))
-            connect.setOnClickListener { disconnect(it) }
-            Log.d("Payload", file.readText(Charsets.UTF_8))
+            try { requireContext().unregisterReceiver(accidentReceiver) } catch (e : IllegalArgumentException) {}
+            requireContext().registerReceiver(accidentReceiver, IntentFilter("ServiceAccident"))
         }
 
         @SuppressLint("SetTextI18n")
         fun disconnect(view : View) {
+            try { requireContext().unregisterReceiver(accidentReceiver) } catch (e : IllegalArgumentException) {}
             val connect = view.findViewById<ExtendedFloatingActionButton>(R.id.connect)
             connect.icon = ContextCompat.getDrawable(requireContext(), R.drawable.ic_connect)
             connect.text = "Connect"
             val intent = Intent(context, Service::class.java)
             requireContext().stopService(intent)
-            requireContext().unregisterReceiver(receiver)
-            connect.setOnClickListener { connect(view) }
+            try { requireContext().unregisterReceiver(receiver) } catch (e : IllegalArgumentException) {}
+            connect.setOnClickListener { connectFancy(view) }
         }
 
         private inner class ViewPagerAdapter : FragmentStateAdapter(this) {
@@ -500,6 +524,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     class RichPresence : Fragment() {
+        private lateinit var json : JsonObject
+        private lateinit var file : File
+
         override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?) : View? {
             super.onCreateView(inflater, container, savedInstanceState)
             return inflater.inflate(R.layout.rich_presence, container,false)
@@ -507,7 +534,165 @@ class MainActivity : AppCompatActivity() {
 
         override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
             super.onViewCreated(view, savedInstanceState)
-            statusSimilar(view, requireContext(), requireActivity(), parentFragmentManager)
+            val activity = view.findViewById<SwitchMaterial>(R.id.activity)
+            file = File(requireContext().cacheDir, "activity")
+            activitySwitch(View.GONE, view)
+            view.findViewById<SwitchMaterial>(R.id.showAll).setOnCheckedChangeListener { _, isChecked ->
+                if(isChecked) {
+                    showAllSwitch(View.VISIBLE, view)
+                }else{
+                    showAllSwitch(View.GONE, view)
+                }
+            }
+            activity.setOnCheckedChangeListener { _, isChecked ->
+                if(isChecked) {
+                    ACTIVITY_ENABLED = true
+                    if(!file.exists()) {
+                        json = JsonObject().apply {
+                            addProperty("name", "\u200b")
+                            addProperty("type", 0)
+                            addProperty("created_at", System.currentTimeMillis())
+                        }
+                        file.writeText(json.toString())
+                    }else json = JsonParser.parseString(file.readText(Charsets.UTF_8)).asJsonObject
+                    activitySwitch(View.VISIBLE, view)
+                }else{
+                    ACTIVITY_ENABLED = false
+                    activitySwitch(View.GONE, view)
+                }
+            }
+            val url = view.findViewById<EditText>(R.id.activityURL)
+            val emojiId = view.findViewById<EditText>(R.id.activityEmojiId)
+            val emojiName = view.findViewById<EditText>(R.id.activityEmojiName)
+            val emojiAnimated = view.findViewById<CheckBox>(R.id.activityEmojiAnimated)
+            val emojiJsonObject = JsonObject().apply {
+                addProperty("name", "question")
+            }
+            view.findViewById<EditText>(R.id.activityName).addTextChangedListener { jsonUpdate("name", it.toString(), "\u200b") }
+            view.findViewById<EditText>(R.id.activityDetails).addTextChangedListener { jsonUpdate("details", it.toString(), null) }
+            view.findViewById<Spinner>(R.id.activityType).apply {
+                adapter = ArrayAdapter.createFromResource(requireContext(), R.array.activity_types, android.R.layout.simple_spinner_item).apply {
+                    setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+                }
+                onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+                    override fun onItemSelected(p0: AdapterView<*>?, p1: View?, int: Int, p3: Long) {
+                        when (int) {
+                            1 -> {
+                                url.visibility = View.VISIBLE
+                                emojiId.visibility = View.GONE
+                                emojiName.visibility = View.GONE
+                                emojiAnimated.visibility = View.GONE
+                            }
+                            4 -> {
+                                url.visibility = View.GONE
+                                emojiId.visibility = View.VISIBLE
+                                emojiName.visibility = View.VISIBLE
+                                emojiAnimated.visibility = View.VISIBLE
+                            }
+                            else -> {
+                                url.visibility = View.GONE
+                                emojiId.visibility = View.GONE
+                                emojiName.visibility = View.GONE
+                                emojiAnimated.visibility = View.GONE
+                            }
+                        }
+                        jsonUpdate("type", int)
+                    }
+
+                    override fun onNothingSelected(p0: AdapterView<*>?) {}
+                }
+            }
+            url.addTextChangedListener { jsonUpdate("url", it.toString(), null) }
+            emojiId.addTextChangedListener { jsonUpdate("emoji", emojiJsonObject.apply {
+                var string : String? = ""
+                string = if (it.toString() == "") null else it.toString()
+                addProperty("id", string)
+            }) }
+            emojiName.addTextChangedListener { jsonUpdate("emoji", emojiJsonObject.apply {
+                var string : String? = ""
+                string = if (it.toString() == "") null else it.toString()
+                addProperty("id", string)
+            }) }
+            emojiAnimated.setOnCheckedChangeListener { _, b ->
+                    emojiJsonObject.addProperty("animated", b)
+            }
+            // TODO: Continue from here
+        }
+
+        private fun jsonUpdate(property: String, key: String, fallback: String?) {
+            if(key != "") json.addProperty(property, key) else json.addProperty(property, fallback)
+            file.writeText(json.toString())
+        }
+
+        private fun jsonUpdate(property: String, key: Int) {
+            json.addProperty(property, key)
+            file.writeText(json.toString())
+        }
+
+        private fun jsonUpdate(property: String, key: JsonElement) {
+            json.add(property, key)
+            file.writeText(json.toString())
+        }
+
+        private fun showAllSwitch(visibility: Int, view: View) {
+            view.findViewById<EditText>(R.id.activityApplicationId).visibility = visibility
+            view.findViewById<EditText>(R.id.activityPartyId).visibility = visibility
+            view.findViewById<EditText>(R.id.activitySecretJoin).visibility = visibility
+            view.findViewById<EditText>(R.id.activitySecretSpectate).visibility = visibility
+            view.findViewById<EditText>(R.id.activitySecretMatch).visibility = visibility
+            view.findViewById<CheckBox>(R.id.activityInstanced).visibility = visibility
+            view.findViewById<Button>(R.id.activityCreatedAt).visibility = visibility
+        }
+
+        private fun activitySwitch(visibility : Int, view: View) {
+            // I have no idea how to make this more efficient, if you do, please create an issue at https://github.com/JasonBenfrin/Discord-Rich-Presence-Android please
+            val spinner = view.findViewById<Spinner>(R.id.activityType)
+            val url = view.findViewById<EditText>(R.id.activityURL)
+            val emojiId = view.findViewById<EditText>(R.id.activityEmojiId)
+            val emojiName = view.findViewById<EditText>(R.id.activityEmojiName)
+            val emojiAnimated = view.findViewById<CheckBox>(R.id.activityEmojiAnimated)
+            view.findViewById<SwitchMaterial>(R.id.showAll).visibility = visibility
+            view.findViewById<EditText>(R.id.activityName).visibility = visibility
+            view.findViewById<EditText>(R.id.activityDetails).visibility = visibility
+            spinner.visibility = visibility
+            url.visibility = visibility
+            emojiId.visibility = visibility
+            emojiName.visibility = visibility
+            emojiAnimated.visibility = visibility
+            view.findViewById<Button>(R.id.activityTimestampStart).visibility = visibility
+            view.findViewById<Button>(R.id.activityTimestampEnd).visibility = visibility
+            view.findViewById<EditText>(R.id.activityPartyState).visibility = visibility
+            view.findViewById<EditText>(R.id.activityPartySizeMin).visibility = visibility
+            view.findViewById<EditText>(R.id.activityPartySizeMax).visibility = visibility
+            view.findViewById<EditText>(R.id.activityLargeImage).visibility = visibility
+            view.findViewById<EditText>(R.id.activityLargeText).visibility = visibility
+            view.findViewById<EditText>(R.id.activitySmallImage).visibility = visibility
+            view.findViewById<EditText>(R.id.activitySmallText).visibility = visibility
+            view.findViewById<EditText>(R.id.activityButton1Label).visibility = visibility
+            view.findViewById<EditText>(R.id.activityButton1URL).visibility = visibility
+            view.findViewById<EditText>(R.id.activityButton2Label).visibility = visibility
+            view.findViewById<EditText>(R.id.activityButton2URL).visibility = visibility
+            if(view.findViewById<SwitchMaterial>(R.id.showAll).isChecked && visibility == View.VISIBLE) showAllSwitch(View.VISIBLE, view) else showAllSwitch(View.GONE, view)
+            when (spinner.selectedItemPosition) {
+                1 -> {
+                    url.visibility = View.VISIBLE
+                    emojiId.visibility = View.GONE
+                    emojiName.visibility = View.GONE
+                    emojiAnimated.visibility = View.GONE
+                }
+                4 -> {
+                    url.visibility = View.GONE
+                    emojiId.visibility = View.VISIBLE
+                    emojiName.visibility = View.VISIBLE
+                    emojiAnimated.visibility = View.VISIBLE
+                }
+                else -> {
+                    url.visibility = View.GONE
+                    emojiId.visibility = View.GONE
+                    emojiName.visibility = View.GONE
+                    emojiAnimated.visibility = View.GONE
+                }
+            }
         }
     }
 
@@ -599,7 +784,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         private fun statusSimilar(view: View, context: Context, activity: Activity, parentFragmentManager : FragmentManager) {
-            val since : Button = view.findViewById(R.id.since)
+            val since : Button = view.findViewById(R.id.activityCreatedAt)
             val afk : CheckBox = view.findViewById(R.id.checkBox)
             val spinner : Spinner = view.findViewById(R.id.spinner3)
             val showAll : SwitchMaterial = view.findViewById(R.id.switch1)
@@ -698,5 +883,7 @@ class MainActivity : AppCompatActivity() {
             File(context.cacheDir, "payload").writeText(json.toString())
             return json
         }
+
+        var ACTIVITY_ENABLED = false
     }
 }

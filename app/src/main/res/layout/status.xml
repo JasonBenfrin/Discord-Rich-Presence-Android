@@ -86,7 +86,7 @@
         app:layout_constraintTop_toTopOf="@+id/guideline18" />
 
     <Button
-        android:id="@+id/since"
+        android:id="@+id/activityCreatedAt"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="@string/since"

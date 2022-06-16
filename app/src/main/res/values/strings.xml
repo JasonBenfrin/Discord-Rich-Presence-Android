@@ -42,8 +42,36 @@
     <string name="notification_service_id">1</string>
     <string name="notification_service_name">Background Service</string>
     <string name="notification_service_description">Notification for background presence</string>
+    <string name="notification_error_id">2</string>
+    <string name="notification_error_name">Error Notifications</string>
+    <string name="notification_error_description">Notification for background presence errors</string>
     <string name="activity">Activity</string>
     <string name="name">Name</string>
+    <string name="created_at">Created At</string>
+    <string name="url">URL</string>
+    <string name="details">Details</string>
+    <string name="emoji_name">Emoji Name</string>
+    <string name="emoji_id">Emoji Id</string>
+    <string name="animated">Emoji Animated</string>
+    <string name="timestamp_start">Timestamp Start</string>
+    <string name="timestamp_end">Timestamp End</string>
+    <string name="application_id">Application Id</string>
+    <string name="party_state">Party State</string>
+    <string name="party_id">Party Id</string>
+    <string name="party_size_current">Party Size Current</string>
+    <string name="party_size_max">Party Size Max</string>
+    <string name="large_image_url">Large Image URL</string>
+    <string name="large_image_text">Large Image Text</string>
+    <string name="small_image_url">Small Image URL</string>
+    <string name="small_image_text">Small Image Text</string>
+    <string name="join_secret">Join Secret</string>
+    <string name="match_secret">Match Secret</string>
+    <string name="spectate_secret">Spectate Secret</string>
+    <string name="instance">Instance</string>
+    <string name="button_1_label">Button 1 Label</string>
+    <string name="button_2_label">Button 2 Label</string>
+    <string name="button_1_url">Button 1 URL</string>
+    <string name="button_2_url">Button 2 URL</string>
     <string-array name="activity_types">
         <item>Playing</item>
         <item>Streaming</item>

@@ -12,89 +12,454 @@
         android:fillViewport="true"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="1.0">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical" >
-
-            <androidx.constraintlayout.widget.Guideline
-                android:id="@+id/guideline14"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                app:layout_constraintGuide_percent="0.55" />
+            android:orientation="vertical">
 
             <androidx.constraintlayout.widget.Guideline
                 android:id="@+id/guideline19"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                app:layout_constraintGuide_begin="0dp"
-                app:layout_constraintGuide_percent="0.9" />
-
-            <androidx.constraintlayout.widget.Guideline
-                android:id="@+id/guideline15"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                app:layout_constraintGuide_percent="0.45" />
+                app:layout_constraintGuide_percent="0.95" />
 
             <androidx.constraintlayout.widget.Guideline
                 android:id="@+id/guideline16"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                app:layout_constraintGuide_begin="0dp"
-                app:layout_constraintGuide_percent="0.1" />
+                app:layout_constraintGuide_percent="0.05" />
 
-            <androidx.constraintlayout.widget.Guideline
-                android:id="@+id/guideline17"
-                android:layout_width="wrap_content"
+            <EditText
+                android:id="@+id/activityName"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                app:layout_constraintGuide_percent="0.11" />
+                android:ems="10"
+                android:hint="@string/name"
+                android:inputType="textPersonName"
+                android:textColor="@color/menu_text"
+                android:textColorHint="@color/menu_text"
+                android:textSize="16sp"
+                app:layout_constraintEnd_toStartOf="@+id/guideline19"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="@+id/guideline16"
+                app:layout_constraintTop_toBottomOf="@+id/showAll" />
 
-            <androidx.constraintlayout.widget.Guideline
-                android:id="@+id/guideline20"
-                android:layout_width="wrap_content"
+            <EditText
+                android:id="@+id/activityDetails"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                app:layout_constraintGuide_percent="0.15" />
+                android:ems="10"
+                android:hint="@string/details"
+                android:inputType="textPersonName"
+                android:textColor="@color/menu_text"
+                android:textColorHint="@color/menu_text"
+                android:textSize="16sp"
+                app:layout_constraintEnd_toStartOf="@+id/guideline19"
+                app:layout_constraintHorizontal_bias="1.0"
+                app:layout_constraintStart_toStartOf="@+id/guideline16"
+                app:layout_constraintTop_toBottomOf="@+id/activityName" />
 
-            <androidx.constraintlayout.widget.Guideline
-                android:id="@+id/guideline22"
-                android:layout_width="wrap_content"
+            <Spinner
+                android:id="@+id/activityType"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                app:layout_constraintGuide_percent="0.26" />
+                android:minHeight="45dp"
+                app:layout_constraintEnd_toStartOf="@+id/guideline19"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="@+id/guideline16"
+                app:layout_constraintTop_toBottomOf="@+id/activityDetails" />
 
-            <androidx.constraintlayout.widget.Guideline
-                android:id="@+id/guideline13"
-                android:layout_width="wrap_content"
+            <Button
+                android:id="@+id/activityCreatedAt"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                app:layout_constraintGuide_percent="0.33" />
+                android:text="@string/created_at"
+                android:textColor="@color/text_inverse"
+                app:backgroundTint="@color/menu_text"
+                app:layout_constraintEnd_toStartOf="@+id/guideline19"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="@+id/guideline16"
+                app:layout_constraintTop_toBottomOf="@+id/activityButton2URL" />
 
-            <androidx.constraintlayout.widget.Guideline
-                android:id="@+id/guideline18"
-                android:layout_width="wrap_content"
+            <Button
+                android:id="@+id/activityTimestampStart"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                app:layout_constraintGuide_begin="0dp"
-                app:layout_constraintGuide_percent="0.04" />
+                android:text="@string/timestamp_start"
+                android:textColor="@color/text_inverse"
+                app:backgroundTint="@color/menu_text"
+                app:layout_constraintEnd_toStartOf="@+id/guideline19"
+                app:layout_constraintHorizontal_bias="1.0"
+                app:layout_constraintStart_toStartOf="@+id/guideline16"
+                app:layout_constraintTop_toBottomOf="@+id/activityEmojiAnimated" />
+
+            <Button
+                android:id="@+id/activityTimestampEnd"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="@string/timestamp_end"
+                android:textColor="@color/text_inverse"
+                app:backgroundTint="@color/menu_text"
+                app:layout_constraintEnd_toStartOf="@+id/guideline19"
+                app:layout_constraintHorizontal_bias="1.0"
+                app:layout_constraintStart_toStartOf="@+id/guideline16"
+                app:layout_constraintTop_toBottomOf="@+id/activityTimestampStart" />
+
+            <EditText
+                android:id="@+id/activityURL"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:hint="@string/url"
+                android:inputType="textUri"
+                android:textColor="@color/menu_text"
+                android:textColorHint="@color/menu_text"
+                android:textSize="16sp"
+                app:layout_constraintEnd_toStartOf="@+id/guideline19"
+                app:layout_constraintHorizontal_bias="1.0"
+                app:layout_constraintStart_toStartOf="@+id/guideline16"
+                app:layout_constraintTop_toBottomOf="@+id/activityType"
+                tools:ignore="TextFields" />
+
+            <EditText
+                android:id="@+id/activityEmojiName"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:hint="@string/emoji_name"
+                android:inputType="textPersonName"
+                android:textColor="@color/menu_text"
+                android:textColorHint="@color/menu_text"
+                android:textSize="16sp"
+                app:layout_constraintEnd_toStartOf="@+id/guideline19"
+                app:layout_constraintHorizontal_bias="1.0"
+                app:layout_constraintStart_toStartOf="@+id/guideline16"
+                app:layout_constraintTop_toBottomOf="@+id/activityURL"
+                tools:ignore="TextFields" />
+
+            <EditText
+                android:id="@+id/activityEmojiId"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:hint="@string/emoji_id"
+                android:inputType="number"
+                android:textColor="@color/menu_text"
+                android:textColorHint="@color/menu_text"
+                android:textSize="16sp"
+                app:layout_constraintEnd_toStartOf="@+id/guideline19"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="@+id/guideline16"
+                app:layout_constraintTop_toBottomOf="@+id/activityEmojiName"
+                tools:ignore="TextFields" />
+
+            <EditText
+                android:id="@+id/activityApplicationId"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:hint="@string/application_id"
+                android:inputType="textPersonName"
+                android:textColor="@color/menu_text"
+                android:textColorHint="@color/menu_text"
+                android:textSize="16sp"
+                app:layout_constraintEnd_toStartOf="@+id/guideline19"
+                app:layout_constraintHorizontal_bias="1.0"
+                app:layout_constraintStart_toStartOf="@+id/guideline16"
+                app:layout_constraintTop_toBottomOf="@+id/activityTimestampEnd"
+                tools:ignore="TextFields" />
+
+            <EditText
+                android:id="@+id/activityPartyState"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:hint="@string/party_state"
+                android:inputType="textPersonName"
+                android:textColor="@color/menu_text"
+                android:textColorHint="@color/menu_text"
+                android:textSize="16sp"
+                app:layout_constraintEnd_toStartOf="@+id/guideline19"
+                app:layout_constraintHorizontal_bias="1.0"
+                app:layout_constraintStart_toStartOf="@+id/guideline16"
+                app:layout_constraintTop_toBottomOf="@+id/activityApplicationId"
+                tools:ignore="TextFields" />
+
+            <EditText
+                android:id="@+id/activityPartyId"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:hint="@string/party_id"
+                android:inputType="textPersonName"
+                android:textColor="@color/menu_text"
+                android:textColorHint="@color/menu_text"
+                android:textSize="16sp"
+                app:layout_constraintEnd_toStartOf="@+id/guideline19"
+                app:layout_constraintHorizontal_bias="1.0"
+                app:layout_constraintStart_toStartOf="@+id/guideline16"
+                app:layout_constraintTop_toBottomOf="@+id/activityPartyState"
+                tools:ignore="TextFields" />
+
+            <EditText
+                android:id="@+id/activityPartySizeMin"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:hint="@string/party_size_current"
+                android:inputType="number"
+                android:textColor="@color/menu_text"
+                android:textColorHint="@color/menu_text"
+                android:textSize="16sp"
+                app:layout_constraintEnd_toStartOf="@+id/guideline19"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="@+id/guideline16"
+                app:layout_constraintTop_toBottomOf="@+id/activityPartyId"
+                tools:ignore="TextFields" />
+
+            <EditText
+                android:id="@+id/activityPartySizeMax"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:hint="@string/party_size_max"
+                android:inputType="number"
+                android:textColor="@color/menu_text"
+                android:textColorHint="@color/menu_text"
+                android:textSize="16sp"
+                app:layout_constraintEnd_toStartOf="@+id/guideline19"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="@+id/guideline16"
+                app:layout_constraintTop_toBottomOf="@+id/activityPartySizeMin"
+                tools:ignore="TextFields" />
+
+            <EditText
+                android:id="@+id/activityLargeImage"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:hint="@string/large_image_url"
+                android:inputType="textUri"
+                android:textColor="@color/menu_text"
+                android:textColorHint="@color/menu_text"
+                android:textSize="16sp"
+                app:layout_constraintEnd_toStartOf="@+id/guideline19"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="@+id/guideline16"
+                app:layout_constraintTop_toBottomOf="@+id/activityPartySizeMax"
+                tools:ignore="TextFields" />
+
+            <EditText
+                android:id="@+id/activitySmallImage"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:hint="@string/small_image_url"
+                android:inputType="textUri"
+                android:textColor="@color/menu_text"
+                android:textColorHint="@color/menu_text"
+                android:textSize="16sp"
+                app:layout_constraintEnd_toStartOf="@+id/guideline19"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="@+id/guideline16"
+                app:layout_constraintTop_toBottomOf="@+id/activityLargeText"
+                tools:ignore="TextFields" />
+
+            <EditText
+                android:id="@+id/activityLargeText"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:hint="@string/large_image_text"
+                android:inputType="textPersonName"
+                android:textColor="@color/menu_text"
+                android:textColorHint="@color/menu_text"
+                android:textSize="16sp"
+                app:layout_constraintEnd_toStartOf="@+id/guideline19"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="@+id/guideline16"
+                app:layout_constraintTop_toBottomOf="@+id/activityLargeImage"
+                tools:ignore="TextFields" />
+
+            <EditText
+                android:id="@+id/activitySmallText"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:hint="@string/small_image_text"
+                android:inputType="textPersonName"
+                android:textColor="@color/menu_text"
+                android:textColorHint="@color/menu_text"
+                android:textSize="16sp"
+                app:layout_constraintEnd_toStartOf="@+id/guideline19"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="@+id/guideline16"
+                app:layout_constraintTop_toBottomOf="@+id/activitySmallImage"
+                tools:ignore="TextFields" />
+
+            <EditText
+                android:id="@+id/activitySecretJoin"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:hint="@string/join_secret"
+                android:inputType="textPersonName"
+                android:textColor="@color/menu_text"
+                android:textColorHint="@color/menu_text"
+                android:textSize="16sp"
+                app:layout_constraintEnd_toStartOf="@+id/guideline19"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="@+id/guideline16"
+                app:layout_constraintTop_toBottomOf="@+id/activitySmallText"
+                tools:ignore="TextFields" />
+
+            <EditText
+                android:id="@+id/activitySecretSpectate"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:hint="@string/spectate_secret"
+                android:inputType="textPersonName"
+                android:textColor="@color/menu_text"
+                android:textColorHint="@color/menu_text"
+                android:textSize="16sp"
+                app:layout_constraintEnd_toStartOf="@+id/guideline19"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="@+id/guideline16"
+                app:layout_constraintTop_toBottomOf="@+id/activitySecretJoin"
+                tools:ignore="TextFields" />
+
+            <EditText
+                android:id="@+id/activitySecretMatch"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:hint="@string/match_secret"
+                android:inputType="textPersonName"
+                android:textColor="@color/menu_text"
+                android:textColorHint="@color/menu_text"
+                android:textSize="16sp"
+                app:layout_constraintEnd_toStartOf="@+id/guideline19"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="@+id/guideline16"
+                app:layout_constraintTop_toBottomOf="@+id/activitySecretSpectate"
+                tools:ignore="TextFields" />
+
+            <EditText
+                android:id="@+id/activityButton1Label"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:hint="@string/button_1_label"
+                android:inputType="textPersonName"
+                android:textColor="@color/menu_text"
+                android:textColorHint="@color/menu_text"
+                android:textSize="16sp"
+                app:layout_constraintEnd_toStartOf="@+id/guideline19"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="@+id/guideline16"
+                app:layout_constraintTop_toBottomOf="@+id/activityInstanced"
+                tools:ignore="TextFields" />
+
+            <EditText
+                android:id="@+id/activityButton1URL"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:hint="@string/button_1_url"
+                android:inputType="textPersonName"
+                android:textColor="@color/menu_text"
+                android:textColorHint="@color/menu_text"
+                android:textSize="16sp"
+                app:layout_constraintEnd_toStartOf="@+id/guideline19"
+                app:layout_constraintHorizontal_bias="1.0"
+                app:layout_constraintStart_toStartOf="@+id/guideline16"
+                app:layout_constraintTop_toBottomOf="@+id/activityButton1Label"
+                tools:ignore="TextFields" />
+
+            <EditText
+                android:id="@+id/activityButton2Label"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:hint="@string/button_2_label"
+                android:inputType="textPersonName"
+                android:textColor="@color/menu_text"
+                android:textColorHint="@color/menu_text"
+                android:textSize="16sp"
+                app:layout_constraintEnd_toStartOf="@+id/guideline19"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="@+id/guideline16"
+                app:layout_constraintTop_toBottomOf="@+id/activityButton1URL"
+                tools:ignore="TextFields" />
+
+            <EditText
+                android:id="@+id/activityButton2URL"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:hint="@string/button_2_url"
+                android:inputType="textPersonName"
+                android:textColor="@color/menu_text"
+                android:textColorHint="@color/menu_text"
+                android:textSize="16sp"
+                app:layout_constraintEnd_toStartOf="@+id/guideline19"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="@+id/guideline16"
+                app:layout_constraintTop_toBottomOf="@+id/activityButton2Label"
+                tools:ignore="TextFields" />
 
             <com.google.android.material.switchmaterial.SwitchMaterial
-                android:id="@+id/switch3"
+                android:id="@+id/activity"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:text="@string/activity"
+                android:textColor="@color/menu_text"
                 android:textSize="16sp"
-                app:layout_constraintBottom_toTopOf="@+id/guideline18"
                 app:layout_constraintEnd_toStartOf="@+id/guideline19"
-                app:layout_constraintStart_toStartOf="@+id/guideline16" />
+                app:layout_constraintStart_toStartOf="@+id/guideline16"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <com.google.android.material.switchmaterial.SwitchMaterial
+                android:id="@+id/showAll"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="@string/show_all"
+                android:textColor="@color/menu_text"
+                android:textSize="16sp"
+                app:layout_constraintEnd_toStartOf="@+id/guideline19"
+                app:layout_constraintHorizontal_bias="1.0"
+                app:layout_constraintStart_toStartOf="@+id/guideline16"
+                app:layout_constraintTop_toBottomOf="@+id/activity" />
+
+            <CheckBox
+                android:id="@+id/activityEmojiAnimated"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="@string/animated"
+                android:textColor="@color/menu_text"
+                app:layout_constraintEnd_toStartOf="@+id/guideline19"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="@+id/guideline16"
+                app:layout_constraintTop_toBottomOf="@+id/activityEmojiId" />
+
+            <CheckBox
+                android:id="@+id/activityInstanced"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="@string/instance"
+                android:textColor="@color/menu_text"
+                app:layout_constraintEnd_toStartOf="@+id/guideline19"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="@+id/guideline16"
+                app:layout_constraintTop_toBottomOf="@+id/activitySecretMatch" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </ScrollView>
