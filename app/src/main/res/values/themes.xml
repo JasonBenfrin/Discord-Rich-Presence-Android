@@ -11,6 +11,7 @@
         <item name="checkboxStyle">@style/Widget.DiscordRPC.CheckBox</item>
         <item name="android:statusBarColor" tools:targetApi="LOLLIPOP">#196585</item>
         <item name="android:navigationBarColor" tools:targetApi="LOLLIPOP">@color/menu_background</item>
+        <item name="hollowButtonStyle">@style/Widget.Material3.Button.OutlinedButton</item>
     </style>
 
     <style name="ThemeOverlay.DiscordRPC.BottomNavigationView" parent="">

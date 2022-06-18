@@ -85,7 +85,7 @@
 
     <Button
         android:id="@+id/logout"
-        style="@style/Widget.Material3.Button.OutlinedButton.Icon"
+        style="@style/Widget.Material3.Button.OutlinedButton"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="@string/logout"

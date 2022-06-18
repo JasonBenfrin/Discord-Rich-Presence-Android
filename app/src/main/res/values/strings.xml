@@ -74,6 +74,7 @@
     <string name="button_2_url">Button 2 URL</string>
     <string name="view_log">View Log</string>
     <string name="no_log_here">No Log here</string>
+    <string name="save_current">Save Current</string>
     <string-array name="activity_types">
         <item>Playing</item>
         <item>Streaming</item>
@@ -82,4 +83,5 @@
         <item>Custom</item>
         <item>Competing</item>
     </string-array>
+    <attr name="hollowButtonStyle" format="reference"/>
 </resources>

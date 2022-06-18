@@ -1,8 +1,13 @@
 package tk.jasonbenfrin.discordrpc
 
 import android.annotation.SuppressLint
-import android.app.*
-import android.content.*
+import android.app.Activity
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -12,6 +17,7 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.text.InputType
 import android.text.format.DateFormat
 import android.view.*
 import android.webkit.WebView
@@ -19,16 +25,24 @@ import android.webkit.WebViewClient
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.content.ContextCompat
 import androidx.core.view.get
+import androidx.core.view.marginEnd
+import androidx.core.view.marginRight
+import androidx.core.view.setMargins
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.android.material.button.MaterialButton
 import com.google.android.material.datepicker.*
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
 import com.google.android.material.navigationrail.NavigationRailView
 import com.google.android.material.switchmaterial.SwitchMaterial
@@ -36,17 +50,18 @@ import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import com.google.android.material.timepicker.MaterialTimePicker
 import com.google.android.material.timepicker.TimeFormat
-import com.google.gson.*
+import com.google.gson.JsonArray
+import com.google.gson.JsonElement
+import com.google.gson.JsonObject
+import com.google.gson.JsonParser
 import com.jakewharton.processphoenix.ProcessPhoenix
 import okhttp3.*
 import java.io.BufferedReader
 import java.io.File
 import java.io.FileReader
-import java.lang.IllegalArgumentException
 import java.net.URL
 import java.util.*
 import java.util.concurrent.Executors
-import kotlin.collections.ArrayList
 
 class MainActivity : AppCompatActivity() {
     private var previousFragment : Int? = null
@@ -190,7 +205,6 @@ class MainActivity : AppCompatActivity() {
     private fun itemSelectedListener( id : MenuItem ) : Boolean {
         val fragmentTransaction = supportFragmentManager.beginTransaction()
             .setReorderingAllowed(true)
-            .addToBackStack(null)
             .setCustomAnimations(R.anim.fragment_enter, R.anim.fragment_exit, R.anim.fragment_enter, R.anim.fragment_exit)
         if( previousFragment != null && previousFragment == id.itemId && previousOrientation == resources.configuration.orientation) return false
         when (id.itemId) {
@@ -356,6 +370,12 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+        private var connectReceiver = object : BroadcastReceiver() {
+            override fun onReceive(p0: Context?, p1: Intent?) {
+                connectFancy(requireView())
+            }
+        }
+
         override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?) : View? {
             super.onCreateView(inflater, container, savedInstanceState)
             return inflater.inflate(R.layout.presence, container,false)
@@ -364,17 +384,37 @@ class MainActivity : AppCompatActivity() {
         @SuppressLint("UseCompatLoadingForDrawables", "SetTextI18n")
         override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
             super.onViewCreated(view, savedInstanceState)
+            requireContext().registerReceiver(connectReceiver, IntentFilter("LoadConnect"))
             val viewPager2 = view.findViewById<ViewPager2>(R.id.viewpager)
             viewPager2.adapter = ViewPagerAdapter()
             val tabLayout = view.findViewById<TabLayout>(R.id.tabLayout)
             TabLayoutMediator(tabLayout, viewPager2) { tab , position ->
                 when (position) {
-                    0 -> tab.text = resources.getText(R.string.status)
-                    1 -> tab.text = resources.getText(R.string.rich_presence)
-                    2 -> tab.text = resources.getText(R.string.load)
+                    0 -> {
+                        tab.text = resources.getText(R.string.status)
+                    }
+                    1 -> {
+                        tab.text = resources.getText(R.string.rich_presence)
+                    }
+                    2 -> {
+                        tab.text = resources.getText(R.string.load)
+                    }
                 }
             }.attach()
             val connect = view.findViewById<ExtendedFloatingActionButton>(R.id.connect)
+            tabLayout.addOnTabSelectedListener(object: TabLayout.OnTabSelectedListener {
+                override fun onTabSelected(tab: TabLayout.Tab?) {
+                    if (tabLayout.selectedTabPosition == 2) {
+                        connect.hide()
+                    }else{
+                        connect.show()
+                    }
+                }
+
+                override fun onTabUnselected(tab: TabLayout.Tab?) {}
+
+                override fun onTabReselected(tab: TabLayout.Tab?) {}
+            })
             if(Service.SERVICE_RUNNING) {
                 connect?.icon = ContextCompat.getDrawable(requireContext(), R.drawable.ic_connect_off)
                 connect?.text = "Disconnect"
@@ -384,7 +424,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         @SuppressLint("SetTextI18n")
-        private fun connectFancy(view: View) {
+        fun connectFancy(view: View) {
             val connect = view.findViewById<ExtendedFloatingActionButton>(R.id.connect)
             connect.icon = ContextCompat.getDrawable(requireContext(), R.drawable.ic_connecting)
             connect.text = "Connecting..."
@@ -419,6 +459,11 @@ class MainActivity : AppCompatActivity() {
             }.start()
             requireContext().registerReceiver(receiver, IntentFilter("ServiceToConnectButton"))
             CONNECTED = true
+        }
+
+        override fun onDestroy() {
+            super.onDestroy()
+            try { requireContext().unregisterReceiver(connectReceiver) } catch (e:Throwable) {}
         }
 
         @SuppressLint("SetTextI18n")
@@ -468,7 +513,7 @@ class MainActivity : AppCompatActivity() {
                 .setReorderingAllowed(true)
                 .setCustomAnimations(R.anim.fragment_enter, R.anim.fragment_exit, R.anim.fragment_enter, R.anim.fragment_exit)
                 .addToBackStack(null)
-                .replace(R.id.fragmentContainerView, Log())
+                .replace(R.id.fragmentContainerView, LogViewer())
                 .commit()
         }
     }
@@ -608,6 +653,9 @@ class MainActivity : AppCompatActivity() {
                                 emojiId.visibility = View.GONE
                                 emojiName.visibility = View.GONE
                                 emojiAnimated.visibility = View.GONE
+                                emojiId.setText("")
+                                emojiName.setText("")
+                                jsonRemove("emoji")
                             }
                         }
                         jsonUpdate("type", int)
@@ -618,12 +666,11 @@ class MainActivity : AppCompatActivity() {
             }
             activityURL.addTextChangedListener { jsonUpdate("url", it.toString(), null) }
             emojiId.addTextChangedListener { jsonUpdate("emoji", emojiJsonObject.apply {
-                var string : String? = ""
-                string = if (it.toString() == "") null else it.toString()
+                val string: String? = if (it.toString() == "") null else it.toString()
                 addProperty("id", string)
             }) }
             emojiName.addTextChangedListener { jsonUpdate("emoji", emojiJsonObject.apply {
-                addProperty("id", it.toString())
+                addProperty("name", if(it.toString() == "") "question" else it.toString())
             }) }
             emojiAnimated.setOnCheckedChangeListener { _, b ->
                 emojiJsonObject.addProperty("animated", b)
@@ -668,7 +715,7 @@ class MainActivity : AppCompatActivity() {
                 addTextChangedListener {
                     jsonUpdate(
                         "party",
-                        partyJsonObject.apply { addProperty("id", it.toString()) })
+                        partyJsonObject.apply { addProperty("id", if(it.toString() == "") null else it.toString()) })
                 }
             }
             val activityPartySizeMin = view.findViewById<EditText>(R.id.activityPartySizeMin).apply {
@@ -739,6 +786,7 @@ class MainActivity : AppCompatActivity() {
                     jsonUpdate("secrets", secretsJsonObject.apply {
                         addProperty("join", if (it.toString() == "") null else it.toString())
                     })
+                    secretUpdate(secretsJsonObject)
                 }
             }
             val activitySecretSpectate = view.findViewById<EditText>(R.id.activitySecretSpectate).apply {
@@ -746,6 +794,7 @@ class MainActivity : AppCompatActivity() {
                     jsonUpdate("secrets", secretsJsonObject.apply {
                         addProperty("spectate", if (it.toString() == "") null else it.toString())
                     })
+                    secretUpdate(secretsJsonObject)
                 }
             }
             val activitySecretMatch = view.findViewById<EditText>(R.id.activitySecretMatch).apply {
@@ -753,6 +802,7 @@ class MainActivity : AppCompatActivity() {
                     jsonUpdate("secrets", secretsJsonObject.apply {
                         addProperty("match", if (it.toString() == "") null else it.toString())
                     })
+                    secretUpdate(secretsJsonObject)
                 }
             }
             view.findViewById<Button>(R.id.activityCreatedAt).apply {
@@ -838,6 +888,14 @@ class MainActivity : AppCompatActivity() {
             if(text1 == "" && text2 == "" && json.has("buttons")) jsonRemove("buttons")
         }
 
+        private fun secretUpdate(json: JsonObject) {
+            if(json.has("join") && json.has("spectate") && json.has("match")) {
+                if(json.get("join").isJsonNull && json.get("spectate").isJsonNull && json.get("match").isJsonNull) jsonRemove("secrets")
+            }else{
+                jsonRemove("secrets")
+            }
+        }
+
         private fun timePicker(property: String, backwards : Boolean?, type: Int) {
             var hours : Int? = null
             var minutes : Int? = null
@@ -897,7 +955,13 @@ class MainActivity : AppCompatActivity() {
         }
 
         private fun jsonUpdate(property: String, key: String, fallback: String?) {
-            if(key != "") json.addProperty(property, key) else json.addProperty(property, fallback)
+            if(key != "") json.addProperty(property, key) else {
+                if(fallback == null) {
+                    jsonRemove(property)
+                }else{
+                    json.addProperty(property, fallback)
+                }
+            }
             file.writeText(json.toString())
         }
 
@@ -991,9 +1055,219 @@ class MainActivity : AppCompatActivity() {
             super.onCreateView(inflater, container, savedInstanceState)
             return inflater.inflate(R.layout.load, container,false)
         }
+
+        @SuppressLint("SetTextI18n", "ClickableViewAccessibility")
+        override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+            super.onViewCreated(view, savedInstanceState)
+            view.findViewById<Button>(R.id.save).setOnClickListener {
+                var input = EditText(requireContext()).apply {
+                    inputType = InputType.TYPE_CLASS_TEXT
+                }
+                val builder = MaterialAlertDialogBuilder(requireContext()).apply {
+                    setTitle("Name")
+                    setCancelable(false)
+                    setMessage("Provide name to save")
+                    setView(input)
+                    setPositiveButton("Save") { dialog, _ ->
+                        dialog.cancel()
+                        val payload = File(requireContext().cacheDir, "payload")
+                        val activity = File(requireContext().cacheDir, "activity")
+                        val file = File(requireContext().filesDir, "saved"+File.separator+input.text.toString())
+                        if(file.createNewFile()) {
+                            val load = view.findViewById<LinearLayout>(R.id.loadScroll)
+                            file.writeText(payload.readText(Charsets.UTF_8) + "\n" + activity.readText(Charsets.UTF_8) + "\n" + ACTIVITY_ENABLED.toString())
+                            val loadButton = MaterialButton(requireContext()).apply {
+                                layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+                                text = "Load"
+                                id = generateViewId()
+                                setOnClickListener {
+                                    val loadFile = file.readText(Charsets.UTF_8)
+                                    payload.writeText(loadFile.split("\n")[0])
+                                    activity.writeText(loadFile.split("\n")[1])
+                                    ACTIVITY_ENABLED = loadFile.split("\n")[2].toBoolean()
+                                    requireContext().sendBroadcast(Intent("LoadConnect"))
+                                }
+                            }
+                            lateinit var loadLayout : ConstraintLayout
+                            val deleteButton = MaterialButton(requireContext(), null, R.attr.hollowButtonStyle).apply {
+                                layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+                                text = "Delete"
+                                id = generateViewId()
+                                setOnClickListener {
+                                    load.removeView(loadLayout)
+                                    file.delete()
+                                }
+                            }
+                            val textLoad = TextView(requireContext()).apply {
+                                layoutParams = LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT).apply {
+                                    setMargins(0, 0, 24, 0)
+                                }
+                                text = file.name
+                                gravity = Gravity.CENTER_VERTICAL
+                                setTextColor(ContextCompat.getColor(requireContext(),R.color.text))
+                                textSize = 18F
+                                id = generateViewId()
+                            }
+                            loadLayout = ConstraintLayout(requireContext()).apply {
+                                layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+                                id = generateViewId()
+                                addView(textLoad)
+                                addView(loadButton)
+                                addView(deleteButton)
+                            }
+                            val constraintSet = ConstraintSet()
+                            constraintSet.clone(loadLayout)
+                            constraintSet.apply {
+                                connect(textLoad.id, ConstraintSet.TOP, loadLayout.id, ConstraintSet.TOP)
+                                connect(textLoad.id, ConstraintSet.LEFT, loadLayout.id, ConstraintSet.LEFT)
+                                connect(textLoad.id, ConstraintSet.RIGHT, loadButton.id, ConstraintSet.LEFT)
+                                connect(textLoad.id, ConstraintSet.BOTTOM, loadLayout.id, ConstraintSet.BOTTOM)
+                                connect(loadButton.id, ConstraintSet.TOP, loadLayout.id, ConstraintSet.TOP)
+                                connect(loadButton.id, ConstraintSet.RIGHT, deleteButton.id, ConstraintSet.LEFT)
+                                connect(deleteButton.id, ConstraintSet.TOP, loadLayout.id, ConstraintSet.TOP)
+                                connect(deleteButton.id, ConstraintSet.RIGHT, loadLayout.id, ConstraintSet.RIGHT)
+                            }
+                            constraintSet.applyTo(loadLayout)
+                            load.addView(loadLayout)
+                        }
+                        else {
+                            input = EditText(requireContext()).apply {
+                                inputType = InputType.TYPE_CLASS_TEXT
+                            }
+                            this.setMessage("A save with the same name was found\nPlease provide another name").setView(input).show()
+                        }
+                    }
+                    setNegativeButton("Cancel") { dialog, _ ->
+                        dialog.cancel()
+                    }
+                }
+                builder.show()
+            }
+            val load = view.findViewById<LinearLayout>(R.id.loadScroll)
+            val dir = File(requireContext().filesDir, "saved")
+            if(dir.exists()) {
+                val listOfFiles = dir.listFiles()
+                if(dir.isDirectory && listOfFiles != null) {
+                    Thread{
+                        for (child in listOfFiles) {
+                            if (!child.isFile) continue
+                            lateinit var loadLayout : ConstraintLayout
+                            val loadButton = MaterialButton(requireContext()).apply {
+                                layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+                                text = "Load"
+                                id = generateViewId()
+                                setOnClickListener {
+                                    val payload = File(requireContext().cacheDir, "payload")
+                                    val activity = File(requireContext().cacheDir, "activity")
+                                    val loadFile = child.readText(Charsets.UTF_8)
+                                    payload.writeText(loadFile.split("\n")[0])
+                                    activity.writeText(loadFile.split("\n")[1])
+                                    ACTIVITY_ENABLED = loadFile.split("\n")[2].toBoolean()
+                                    requireContext().sendBroadcast(Intent("LoadConnect"))
+                                }
+                            }
+                            val deleteButton = MaterialButton(requireContext(), null, R.attr.hollowButtonStyle).apply {
+                                layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+                                text = "Delete"
+                                id = generateViewId()
+                                setOnClickListener {
+                                    try {requireActivity().runOnUiThread{ load.removeView(loadLayout) }} catch (e:Throwable) {}
+                                    child.delete()
+                                }
+                            }
+                            val textLoad = TextView(requireContext()).apply {
+                                layoutParams = LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT).apply {
+                                    setMargins(0, 0, 24, 0)
+                                }
+                                text = child.name
+                                gravity = Gravity.CENTER_VERTICAL
+                                setTextColor(ContextCompat.getColor(requireContext(),R.color.text))
+                                textSize = 18F
+                                id = generateViewId()
+                            }
+                            loadLayout = ConstraintLayout(requireContext()).apply {
+                                layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+                                id = generateViewId()
+                                addView(textLoad)
+                                addView(loadButton)
+                                addView(deleteButton)
+                            }
+                            val constraintSet = ConstraintSet()
+                            constraintSet.clone(loadLayout)
+                            constraintSet.apply {
+                                connect(textLoad.id, ConstraintSet.TOP, loadLayout.id, ConstraintSet.TOP)
+                                connect(textLoad.id, ConstraintSet.LEFT, loadLayout.id, ConstraintSet.LEFT)
+                                connect(textLoad.id, ConstraintSet.RIGHT, loadButton.id, ConstraintSet.LEFT)
+                                connect(textLoad.id, ConstraintSet.BOTTOM, loadLayout.id, ConstraintSet.BOTTOM)
+                                connect(loadButton.id, ConstraintSet.TOP, loadLayout.id, ConstraintSet.TOP)
+                                connect(loadButton.id, ConstraintSet.RIGHT, deleteButton.id, ConstraintSet.LEFT)
+                                connect(deleteButton.id, ConstraintSet.TOP, loadLayout.id, ConstraintSet.TOP)
+                                connect(deleteButton.id, ConstraintSet.RIGHT, loadLayout.id, ConstraintSet.RIGHT)
+                            }
+                            constraintSet.applyTo(loadLayout)
+                            try { requireActivity().runOnUiThread { load.addView(loadLayout) } } catch (e:Throwable) {}
+                        }
+                    }.start()
+                }else{
+                    dir.delete()
+                    dir.mkdir()
+                }
+            }else{
+                dir.mkdir()
+            }
+            Thread{
+                for (i in 1..20) {
+                    lateinit var loadLayout : ConstraintLayout
+                    val loadButton = MaterialButton(requireContext()).apply {
+                        layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+                        text = "Load"
+                        id = generateViewId()
+                    }
+                    val deleteButton = MaterialButton(requireContext(), null, R.attr.hollowButtonStyle).apply {
+                        layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+                        text = "Delete"
+                        id = generateViewId()
+                        setOnClickListener {
+                            try {requireActivity().runOnUiThread{ load.removeView(loadLayout) }} catch (e:Throwable) {}
+                        }
+                    }
+                    val textLoad = TextView(requireContext()).apply {
+                        layoutParams = LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT).apply {
+                            setMargins(0, 0, 24, 0)
+                        }
+                        text = "child.name"
+                        gravity = Gravity.CENTER_VERTICAL
+                        setTextColor(ContextCompat.getColor(requireContext(),R.color.text))
+                        textSize = 18F
+                        id = generateViewId()
+                    }
+                    loadLayout = ConstraintLayout(requireContext()).apply {
+                        layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+                        id = generateViewId()
+                        addView(textLoad)
+                        addView(loadButton)
+                        addView(deleteButton)
+                    }
+                    val constraintSet = ConstraintSet()
+                    constraintSet.clone(loadLayout)
+                    constraintSet.apply {
+                        connect(textLoad.id, ConstraintSet.TOP, loadLayout.id, ConstraintSet.TOP)
+                        connect(textLoad.id, ConstraintSet.LEFT, loadLayout.id, ConstraintSet.LEFT)
+                        connect(textLoad.id, ConstraintSet.RIGHT, loadButton.id, ConstraintSet.LEFT)
+                        connect(textLoad.id, ConstraintSet.BOTTOM, loadLayout.id, ConstraintSet.BOTTOM)
+                        connect(loadButton.id, ConstraintSet.TOP, loadLayout.id, ConstraintSet.TOP)
+                        connect(loadButton.id, ConstraintSet.RIGHT, deleteButton.id, ConstraintSet.LEFT)
+                        connect(deleteButton.id, ConstraintSet.TOP, loadLayout.id, ConstraintSet.TOP)
+                        connect(deleteButton.id, ConstraintSet.RIGHT, loadLayout.id, ConstraintSet.RIGHT)
+                    }
+                    constraintSet.applyTo(loadLayout)
+                    try { requireActivity().runOnUiThread { load.addView(loadLayout) } } catch (e:Throwable) {}
+                }
+            } //this is just for testing
+        }
     }
 
-    class Log : Fragment() {
+    class LogViewer : Fragment() {
         private lateinit var textView: TextView
         private var logReceiver = object : BroadcastReceiver() {
             override fun onReceive(p0: Context?, intent: Intent?) {
@@ -1064,9 +1338,9 @@ class MainActivity : AppCompatActivity() {
     companion object {
         fun identify(webSocket: WebSocket, context: Context) {
             val properties = JsonObject()
-            properties.addProperty("\$os","linux")
-            properties.addProperty("\$browser","unknown")
-            properties.addProperty("\$device","unknown")
+            properties.addProperty("os","linux")
+            properties.addProperty("browser","unknown")
+            properties.addProperty("device","unknown")
             val d = JsonObject()
             d.addProperty("token", getToken(context))
             d.addProperty("intents", 0)
@@ -1202,8 +1476,20 @@ class MainActivity : AppCompatActivity() {
             return json
         }
 
+        //For API 17, just use View.generateViewId()
+        private fun generateViewId() : Int {
+            return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+                View.generateViewId()
+            } else {
+                resourceID += 1
+                resourceID
+            }
+        }
+
         var ACTIVITY_ENABLED = false
 
         var CONNECTED = false
+
+        private var resourceID = 0
     }
 }
