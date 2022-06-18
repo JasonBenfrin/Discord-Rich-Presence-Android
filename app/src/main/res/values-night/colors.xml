@@ -5,6 +5,7 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="text">#FFFFFFFF</color>
+    <color name="text_hint">#80FFFFFF</color>
     <color name="text_inverse">#FF000000</color>
     <color name="menu_ripple">#5B757A</color>
     <color name="menu_background">#2B383B</color>

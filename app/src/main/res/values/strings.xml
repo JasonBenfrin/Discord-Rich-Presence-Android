@@ -72,6 +72,8 @@
     <string name="button_2_label">Button 2 Label</string>
     <string name="button_1_url">Button 1 URL</string>
     <string name="button_2_url">Button 2 URL</string>
+    <string name="view_log">View Log</string>
+    <string name="no_log_here">No Log here</string>
     <string-array name="activity_types">
         <item>Playing</item>
         <item>Streaming</item>

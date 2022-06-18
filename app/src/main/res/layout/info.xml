@@ -34,8 +34,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_begin="0dp"
-        app:layout_constraintGuide_percent="0.87" />
+        app:layout_constraintGuide_percent="0.84" />
 
     <ScrollView
         android:id="@+id/scrollView2"
@@ -142,6 +141,7 @@
                 app:layout_constraintStart_toStartOf="@+id/guideline4"
                 app:layout_constraintTop_toBottomOf="@+id/textView8"
                 tools:ignore="TextContrastCheck" />
+
         </LinearLayout>
     </ScrollView>
 
@@ -150,9 +150,21 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:contentDescription="@string/go_to_github"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/viewLog"
         app:layout_constraintEnd_toStartOf="@+id/guideline2"
         app:layout_constraintStart_toStartOf="@+id/guideline4"
         app:layout_constraintTop_toTopOf="@+id/guideline6"
         app:srcCompat="@drawable/github" />
+
+    <Button
+        android:id="@+id/viewLog"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="@string/view_log"
+        android:textColor="@color/text_inverse"
+        app:backgroundTint="@color/menu_text"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/guideline2"
+        app:layout_constraintStart_toStartOf="@+id/guideline4" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

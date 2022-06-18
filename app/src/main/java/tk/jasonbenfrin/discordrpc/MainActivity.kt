@@ -2,10 +2,7 @@ package tk.jasonbenfrin.discordrpc
 
 import android.annotation.SuppressLint
 import android.app.*
-import android.content.BroadcastReceiver
-import android.content.Context
-import android.content.Intent
-import android.content.IntentFilter
+import android.content.*
 import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -16,7 +13,6 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.text.format.DateFormat
-import android.util.Log
 import android.view.*
 import android.webkit.WebView
 import android.webkit.WebViewClient
@@ -32,10 +28,7 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import com.google.android.material.datepicker.CalendarConstraints
-import com.google.android.material.datepicker.CompositeDateValidator
-import com.google.android.material.datepicker.DateValidatorPointBackward
-import com.google.android.material.datepicker.MaterialDatePicker
+import com.google.android.material.datepicker.*
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
 import com.google.android.material.navigationrail.NavigationRailView
 import com.google.android.material.switchmaterial.SwitchMaterial
@@ -43,10 +36,7 @@ import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import com.google.android.material.timepicker.MaterialTimePicker
 import com.google.android.material.timepicker.TimeFormat
-import com.google.gson.JsonArray
-import com.google.gson.JsonElement
-import com.google.gson.JsonObject
-import com.google.gson.JsonParser
+import com.google.gson.*
 import com.jakewharton.processphoenix.ProcessPhoenix
 import okhttp3.*
 import java.io.BufferedReader
@@ -56,6 +46,7 @@ import java.lang.IllegalArgumentException
 import java.net.URL
 import java.util.*
 import java.util.concurrent.Executors
+import kotlin.collections.ArrayList
 
 class MainActivity : AppCompatActivity() {
     private var previousFragment : Int? = null
@@ -199,6 +190,7 @@ class MainActivity : AppCompatActivity() {
     private fun itemSelectedListener( id : MenuItem ) : Boolean {
         val fragmentTransaction = supportFragmentManager.beginTransaction()
             .setReorderingAllowed(true)
+            .addToBackStack(null)
             .setCustomAnimations(R.anim.fragment_enter, R.anim.fragment_exit, R.anim.fragment_enter, R.anim.fragment_exit)
         if( previousFragment != null && previousFragment == id.itemId && previousOrientation == resources.configuration.orientation) return false
         when (id.itemId) {
@@ -364,12 +356,6 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        private var accidentReceiver = object : BroadcastReceiver() {
-            override fun onReceive(p0: Context?, p1: Intent?) {
-                connect()
-            }
-        }
-
         override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?) : View? {
             super.onCreateView(inflater, container, savedInstanceState)
             return inflater.inflate(R.layout.presence, container,false)
@@ -406,16 +392,23 @@ class MainActivity : AppCompatActivity() {
             connect()
         }
 
-        fun connect() {
-            if(getToken(requireContext()) == null) {
-                Toast.makeText(requireContext(), "Please Login first", Toast.LENGTH_SHORT).show()
-                return
-            }
-            val file = File(context?.cacheDir, "payload")
-            if(!file.exists()) {
-                Toast.makeText(context, "Oops, something went wrong! Please restart this app.", Toast.LENGTH_SHORT).show()
-                return
-            }
+        private fun connect() {
+            try {
+                if (getToken(requireContext()) == null) {
+                    Toast.makeText(requireContext(), "Please Login first", Toast.LENGTH_SHORT)
+                        .show()
+                    return
+                }
+                val file = File(context?.cacheDir, "payload")
+                if (!file.exists()) {
+                    Toast.makeText(
+                        context,
+                        "Oops, something went wrong! Please restart this app.",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    return
+                }
+            } catch (e:Throwable) {}
             val intent = Intent(context, Service::class.java)
             Thread {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -425,13 +418,11 @@ class MainActivity : AppCompatActivity() {
                 }
             }.start()
             requireContext().registerReceiver(receiver, IntentFilter("ServiceToConnectButton"))
-            try { requireContext().unregisterReceiver(accidentReceiver) } catch (e : IllegalArgumentException) {}
-            requireContext().registerReceiver(accidentReceiver, IntentFilter("ServiceAccident"))
+            CONNECTED = true
         }
 
         @SuppressLint("SetTextI18n")
         fun disconnect(view : View) {
-            try { requireContext().unregisterReceiver(accidentReceiver) } catch (e : IllegalArgumentException) {}
             val connect = view.findViewById<ExtendedFloatingActionButton>(R.id.connect)
             connect.icon = ContextCompat.getDrawable(requireContext(), R.drawable.ic_connect)
             connect.text = "Connect"
@@ -439,6 +430,7 @@ class MainActivity : AppCompatActivity() {
             requireContext().stopService(intent)
             try { requireContext().unregisterReceiver(receiver) } catch (e : IllegalArgumentException) {}
             connect.setOnClickListener { connectFancy(view) }
+            CONNECTED = false
         }
 
         private inner class ViewPagerAdapter : FragmentStateAdapter(this) {
@@ -464,10 +456,20 @@ class MainActivity : AppCompatActivity() {
             super.onViewCreated(view, savedInstanceState)
             val githubButton : ImageButton = view.findViewById(R.id.github)
             githubButton.setOnClickListener{ github() }
+            view.findViewById<Button>(R.id.viewLog).setOnClickListener { viewLog() }
         }
 
         private fun github() {
             startActivity(Intent("android.intent.action.VIEW", Uri.parse("https://github.com/JasonBenfrin/Discord-Rich-Presence-Android")))
+        }
+
+        private fun viewLog() {
+            parentFragmentManager.beginTransaction()
+                .setReorderingAllowed(true)
+                .setCustomAnimations(R.anim.fragment_enter, R.anim.fragment_exit, R.anim.fragment_enter, R.anim.fragment_exit)
+                .addToBackStack(null)
+                .replace(R.id.fragmentContainerView, Log())
+                .commit()
         }
     }
 
@@ -526,6 +528,7 @@ class MainActivity : AppCompatActivity() {
     class RichPresence : Fragment() {
         private lateinit var json : JsonObject
         private lateinit var file : File
+        private val timestampJsonObject = JsonObject()
 
         override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?) : View? {
             super.onCreateView(inflater, container, savedInstanceState)
@@ -561,16 +564,27 @@ class MainActivity : AppCompatActivity() {
                     activitySwitch(View.GONE, view)
                 }
             }
-            val url = view.findViewById<EditText>(R.id.activityURL)
+            val activityURL = view.findViewById<EditText>(R.id.activityURL)
             val emojiId = view.findViewById<EditText>(R.id.activityEmojiId)
             val emojiName = view.findViewById<EditText>(R.id.activityEmojiName)
             val emojiAnimated = view.findViewById<CheckBox>(R.id.activityEmojiAnimated)
             val emojiJsonObject = JsonObject().apply {
                 addProperty("name", "question")
             }
-            view.findViewById<EditText>(R.id.activityName).addTextChangedListener { jsonUpdate("name", it.toString(), "\u200b") }
-            view.findViewById<EditText>(R.id.activityDetails).addTextChangedListener { jsonUpdate("details", it.toString(), null) }
-            view.findViewById<Spinner>(R.id.activityType).apply {
+            val partyJsonObject = JsonObject()
+            val assetsJsonObject = JsonObject()
+            val secretsJsonObject = JsonObject()
+            var partySizeMin : Int? = null
+            var partySizeMax : Int? = null
+            var button1Text = ""
+            var button2Text = ""
+            val activityName = view.findViewById<EditText>(R.id.activityName).apply {
+                addTextChangedListener { jsonUpdate("name", it.toString(), "\u200b") }
+            }
+            val activityDetails = view.findViewById<EditText>(R.id.activityDetails).apply {
+                addTextChangedListener { jsonUpdate("details", it.toString(), null) }
+            }
+            val activityType = view.findViewById<Spinner>(R.id.activityType).apply {
                 adapter = ArrayAdapter.createFromResource(requireContext(), R.array.activity_types, android.R.layout.simple_spinner_item).apply {
                     setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
                 }
@@ -578,19 +592,19 @@ class MainActivity : AppCompatActivity() {
                     override fun onItemSelected(p0: AdapterView<*>?, p1: View?, int: Int, p3: Long) {
                         when (int) {
                             1 -> {
-                                url.visibility = View.VISIBLE
+                                activityURL.visibility = View.VISIBLE
                                 emojiId.visibility = View.GONE
                                 emojiName.visibility = View.GONE
                                 emojiAnimated.visibility = View.GONE
                             }
                             4 -> {
-                                url.visibility = View.GONE
+                                activityURL.visibility = View.GONE
                                 emojiId.visibility = View.VISIBLE
                                 emojiName.visibility = View.VISIBLE
                                 emojiAnimated.visibility = View.VISIBLE
                             }
                             else -> {
-                                url.visibility = View.GONE
+                                activityURL.visibility = View.GONE
                                 emojiId.visibility = View.GONE
                                 emojiName.visibility = View.GONE
                                 emojiAnimated.visibility = View.GONE
@@ -602,21 +616,284 @@ class MainActivity : AppCompatActivity() {
                     override fun onNothingSelected(p0: AdapterView<*>?) {}
                 }
             }
-            url.addTextChangedListener { jsonUpdate("url", it.toString(), null) }
+            activityURL.addTextChangedListener { jsonUpdate("url", it.toString(), null) }
             emojiId.addTextChangedListener { jsonUpdate("emoji", emojiJsonObject.apply {
                 var string : String? = ""
                 string = if (it.toString() == "") null else it.toString()
                 addProperty("id", string)
             }) }
             emojiName.addTextChangedListener { jsonUpdate("emoji", emojiJsonObject.apply {
-                var string : String? = ""
-                string = if (it.toString() == "") null else it.toString()
-                addProperty("id", string)
+                addProperty("id", it.toString())
             }) }
             emojiAnimated.setOnCheckedChangeListener { _, b ->
-                    emojiJsonObject.addProperty("animated", b)
+                emojiJsonObject.addProperty("animated", b)
             }
-            // TODO: Continue from here
+            view.findViewById<Button>(R.id.activityTimestampStart).apply {
+                setOnClickListener {
+                    timePicker(
+                        "Timestamp Start",
+                        null,
+                        0
+                    )
+                }
+            }
+            view.findViewById<Button>(R.id.activityTimestampEnd).apply {
+                setOnClickListener {
+                    timePicker(
+                        "Timestamp End",
+                        null,
+                        1
+                    )
+                }
+            }
+            val activityApplicationId = view.findViewById<EditText>(R.id.activityApplicationId).apply {
+                addTextChangedListener {
+                    jsonUpdate(
+                        "application_id",
+                        it.toString(),
+                        null
+                    )
+                }
+            }
+            val activityPartyState = view.findViewById<EditText>(R.id.activityPartyState).apply {
+                addTextChangedListener {
+                    jsonUpdate(
+                        "state",
+                        it.toString(),
+                        null
+                    )
+                }
+            }
+            val activityPartyId = view.findViewById<EditText>(R.id.activityPartyId).apply {
+                addTextChangedListener {
+                    jsonUpdate(
+                        "party",
+                        partyJsonObject.apply { addProperty("id", it.toString()) })
+                }
+            }
+            val activityPartySizeMin = view.findViewById<EditText>(R.id.activityPartySizeMin).apply {
+               addTextChangedListener {
+                   partySizeMin = if (it.toString() == "") null else it.toString().toInt()
+                   if (partySizeMin != null && partySizeMax != null) {
+                       jsonUpdate("party", partyJsonObject.apply {
+                           add("size", JsonArray().apply {
+                               add(partySizeMin)
+                               add(partySizeMax)
+                           })
+                       })
+                   } else {
+                       json.remove("size")
+                   }
+               }
+           }
+            val activityPartySizeMax = view.findViewById<EditText>(R.id.activityPartySizeMax).apply {
+                addTextChangedListener {
+                    partySizeMax = if (it.toString() == "") null else it.toString().toInt()
+                    if (partySizeMin != null && partySizeMax != null) {
+                        jsonUpdate("party", partyJsonObject.apply {
+                            add("size", JsonArray().apply {
+                                add(partySizeMin)
+                                add(partySizeMax)
+                            })
+                        })
+                    } else {
+                        json.remove("size")
+                    }
+                }
+            }
+            val activityLargeImage = view.findViewById<EditText>(R.id.activityLargeImage).apply {
+                addTextChangedListener {
+                    jsonUpdate("assets", assetsJsonObject.apply {
+                        addProperty("large_image", if (it.toString() == "") null else urlResolver(it.toString()))
+                    })
+                }
+            }
+            val activityLargeText = view.findViewById<EditText>(R.id.activityLargeText).apply {
+                addTextChangedListener {
+                    jsonUpdate("assets", assetsJsonObject.apply {
+                        addProperty("large_text", if (it.toString() == "") null else it.toString())
+                    })
+                }
+            }
+            val activitySmallImage = view.findViewById<EditText>(R.id.activitySmallImage).apply {
+                addTextChangedListener {
+                    jsonUpdate("assets", assetsJsonObject.apply {
+                        addProperty("small_image", if (it.toString() == "") null else urlResolver(it.toString()))
+                    })
+                }
+            }
+            val activitySmallText = view.findViewById<EditText>(R.id.activitySmallText).apply {
+                addTextChangedListener {
+                    jsonUpdate("assets", assetsJsonObject.apply {
+                        addProperty("small_text", if (it.toString() == "") null else it.toString())
+                    })
+                }
+            }
+            val activityInstanced = view.findViewById<CheckBox>(R.id.activityInstanced).apply {
+                setOnCheckedChangeListener { _, b ->
+                    jsonUpdate("instance", b)
+                }
+            }
+            val activitySecretJoin = view.findViewById<EditText>(R.id.activitySecretJoin).apply {
+                addTextChangedListener {
+                    jsonUpdate("secrets", secretsJsonObject.apply {
+                        addProperty("join", if (it.toString() == "") null else it.toString())
+                    })
+                }
+            }
+            val activitySecretSpectate = view.findViewById<EditText>(R.id.activitySecretSpectate).apply {
+                addTextChangedListener {
+                    jsonUpdate("secrets", secretsJsonObject.apply {
+                        addProperty("spectate", if (it.toString() == "") null else it.toString())
+                    })
+                }
+            }
+            val activitySecretMatch = view.findViewById<EditText>(R.id.activitySecretMatch).apply {
+                addTextChangedListener {
+                    jsonUpdate("secrets", secretsJsonObject.apply {
+                        addProperty("match", if (it.toString() == "") null else it.toString())
+                    })
+                }
+            }
+            view.findViewById<Button>(R.id.activityCreatedAt).apply {
+                setOnClickListener {
+                    timePicker("Created At", false, 2)
+                }
+            }
+            val activityButton1Label = view.findViewById<EditText>(R.id.activityButton1Label).apply {
+                addTextChangedListener {
+                    button1Text = it.toString()
+                    buttonUpdate(button1Text, button2Text)
+                }
+            }
+            val activityButton2Label = view.findViewById<EditText>(R.id.activityButton2Label).apply {
+                addTextChangedListener {
+                    button2Text = it.toString()
+                    buttonUpdate(button1Text, button2Text)
+                }
+            }
+            if(file.exists()) {
+                json = JsonParser.parseString(file.readText(Charsets.UTF_8)).asJsonObject
+                if(json.has("name") && !json.get("name").isJsonNull) activityName.setText(json.get("name").asString, TextView.BufferType.EDITABLE)
+                if(json.has("type") && !json.get("type").isJsonNull) activityType.setSelection(json.get("type").asInt)
+                if(json.has("url") && !json.get("url").isJsonNull) activityURL.setText(json.get("url").asString, TextView.BufferType.EDITABLE)
+                if(json.has("application_id") && !json.get("application_id").isJsonNull) activityApplicationId.setText(json.get("application_id").asString, TextView.BufferType.EDITABLE)
+                if(json.has("details") && !json.get("details").isJsonNull) activityDetails.setText(json.get("details").asString, TextView.BufferType.EDITABLE)
+                if(json.has("state") && !json.get("state").isJsonNull) activityPartyState.setText(json.get("state").asString, TextView.BufferType.EDITABLE)
+                if(json.has("emoji") && !json.get("emoji").isJsonNull) {
+                    val emoji = json.get("emoji").asJsonObject
+                    if(emoji.has("name") && !emoji.get("name").isJsonNull) emojiName.setText(emoji.get("name").asString, TextView.BufferType.EDITABLE)
+                    if(emoji.has("id") && !emoji.get("id").isJsonNull) emojiId.setText(emoji.get("id").asString, TextView.BufferType.EDITABLE)
+                    if(emoji.has("animated") && !emoji.get("animated").isJsonNull) emojiAnimated.isChecked = emoji.get("animated").asBoolean
+                }
+                if(json.has("party") && !json.get("party").isJsonNull) {
+                    val party = json.get("party").asJsonObject
+                    if(party.has("id") && !party.get("id").isJsonNull) activityPartyId.setText(party.get("id").asString, TextView.BufferType.EDITABLE)
+                    if(party.has("size") && !party.get("size").isJsonNull) {
+                        val partySize = party.get("size").asJsonArray
+                        activityPartySizeMin.setText(partySize[0].asString, TextView.BufferType.EDITABLE)
+                        activityPartySizeMax.setText(partySize[1].asString, TextView.BufferType.EDITABLE)
+                    }
+                }
+                if(json.has("assets") && !json.get("assets").isJsonNull) {
+                    val assets = json.get("assets").asJsonObject
+                    if(assets.has("large_image") && !assets.get("large_image").isJsonNull) activityLargeImage.setText(assets.get("large_image").asString, TextView.BufferType.EDITABLE)
+                    if(assets.has("large_text") && !assets.get("large_text").isJsonNull) activityLargeText.setText(assets.get("large_text").asString, TextView.BufferType.EDITABLE)
+                    if(assets.has("small_image") && !assets.get("small_image").isJsonNull) activitySmallImage.setText(assets.get("small_image").asString, TextView.BufferType.EDITABLE)
+                    if(assets.has("small_text") && !assets.get("small_text").isJsonNull) activitySmallText.setText(assets.get("small_text").asString, TextView.BufferType.EDITABLE)
+                }
+                if(json.has("secrets") && !json.get("secrets").isJsonNull) {
+                    val secrets = json.get("secrets").asJsonObject
+                    if(secrets.has("join") && !secrets.get("join").isJsonNull) activitySecretJoin.setText(secrets.get("join").asString, TextView.BufferType.EDITABLE)
+                    if(secrets.has("spectate") && !secrets.get("spectate").isJsonNull) activitySecretSpectate.setText(secrets.get("spectate").asString, TextView.BufferType.EDITABLE)
+                    if(secrets.has("match") && !secrets.get("match").isJsonNull) activitySecretMatch.setText(secrets.get("match").asString, TextView.BufferType.EDITABLE)
+                }
+                if(json.has("instance") && !json.get("instance").isJsonNull) activityInstanced.isChecked = json.get("instance").asBoolean
+                if(json.has("buttons") && !json.get("buttons").isJsonNull) {
+                    val buttons = json.get("buttons").asJsonArray
+                    if(buttons.size() == 1) {
+                        activityButton1Label.setText(buttons[0].asString, TextView.BufferType.EDITABLE)
+                    }else{
+                        activityButton1Label.setText(buttons[0].asString, TextView.BufferType.EDITABLE)
+                        activityButton2Label.setText(buttons[1].asString, TextView.BufferType.EDITABLE)
+                    }
+                }
+            }
+            activity.isChecked = ACTIVITY_ENABLED
+        }
+
+        private fun urlResolver(url:String) : String {
+            val formattedURL : String = url.removePrefix("https://").removePrefix("http://")
+            if(url.contains("mp")) return url
+            if(url.contains("cdn.discordapp.com")) return "mp:" + formattedURL.removePrefix("cdn.discordapp.com/")
+            if(url.contains("media.discordapp.net")) return "mp:" + formattedURL.removePrefix("media.discordapp.net/")
+            return "mp:$url"
+        }
+
+        private fun buttonUpdate(text1: String, text2: String) {
+            jsonUpdate("buttons", JsonArray().apply {
+                if (text1 != "") add(text1)
+                if (text2 != "") add(text2)
+            })
+            if(text1 == "" && text2 == "" && json.has("buttons")) jsonRemove("buttons")
+        }
+
+        private fun timePicker(property: String, backwards : Boolean?, type: Int) {
+            var hours : Int? = null
+            var minutes : Int? = null
+            var day : Long? = null
+            val calendar = Calendar.getInstance()
+            val timePicker = MaterialTimePicker.Builder()
+                .setTimeFormat(if(DateFormat.is24HourFormat(activity)) TimeFormat.CLOCK_24H else TimeFormat.CLOCK_12H)
+                .setHour(calendar.get(Calendar.HOUR_OF_DAY))
+                .setMinute(calendar.get(Calendar.MINUTE))
+                .setTitleText("\"$property\" property")
+                .setPositiveButtonText("Set")
+                .setNegativeButtonText("Reset")
+                .build()
+            timePicker.show(parentFragmentManager, "TimePicker")
+            timePicker.addOnPositiveButtonClickListener {
+                hours = timePicker.hour
+                minutes = timePicker.minute
+                day = MaterialDatePicker.todayInUtcMilliseconds() - TimeZone.getDefault().getOffset(Date().time)
+                val constraintsBuilderRange = CalendarConstraints.Builder()
+                val listOfValidators = ArrayList<CalendarConstraints.DateValidator>()
+                if(backwards == true) listOfValidators.add(DateValidatorPointBackward.now())
+                else if(backwards == false) listOfValidators.add(DateValidatorPointForward.now())
+                val validators = CompositeDateValidator.allOf(listOfValidators)
+                constraintsBuilderRange.setValidator(validators)
+                val datePickerBuilder = MaterialDatePicker.Builder.datePicker()
+                    .setSelection(MaterialDatePicker.todayInUtcMilliseconds())
+                    .setTitleText("\"$property\" property")
+                    .setPositiveButtonText("Set")
+                    .setNegativeButtonText("Reset")
+                if (backwards != null) datePickerBuilder.setCalendarConstraints(constraintsBuilderRange.build())
+                val datePicker = datePickerBuilder.build()
+                datePicker.show(parentFragmentManager, "DatePicker")
+                datePicker.addOnPositiveButtonClickListener {
+                    day = it - TimeZone.getDefault().getOffset(Date().time)
+                    dateTimePickerJsonResolver(type, calculateMilliSeconds(day, hours, minutes))
+                }
+                datePicker.addOnNegativeButtonClickListener {
+                    dateTimePickerJsonResolver(type, calculateMilliSeconds(day, hours, minutes))
+                }
+            }
+            timePicker.addOnNegativeButtonClickListener {
+                dateTimePickerJsonResolver(type, calculateMilliSeconds(day, hours, minutes))
+            }
+        }
+
+        private fun calculateMilliSeconds(day: Long?, hours: Int?, minutes: Int?): Long? {
+            return if(day == null && hours == null && minutes == null) null
+            else day!! + (hours!! * 60 + minutes!!) * 60000
+        }
+
+        private fun dateTimePickerJsonResolver(type: Int, time: Long?) {
+            when (type) {
+                0 -> jsonUpdate("timestamps", timestampJsonObject.apply { addProperty("start", time) })
+                1 -> jsonUpdate("timestamps", timestampJsonObject.apply { addProperty("end", time) })
+                2 -> jsonUpdate("created_at", time ?: System.currentTimeMillis())
+            }
         }
 
         private fun jsonUpdate(property: String, key: String, fallback: String?) {
@@ -629,8 +906,23 @@ class MainActivity : AppCompatActivity() {
             file.writeText(json.toString())
         }
 
+        private fun jsonUpdate(property: String, key: Boolean) {
+            json.addProperty(property, key)
+            file.writeText(json.toString())
+        }
+
+        private fun jsonUpdate(property: String, key: Long?) {
+            json.addProperty(property, key)
+            file.writeText(json.toString())
+        }
+
         private fun jsonUpdate(property: String, key: JsonElement) {
             json.add(property, key)
+            file.writeText(json.toString())
+        }
+
+        private fun jsonRemove(property: String) {
+            json.remove(property)
             file.writeText(json.toString())
         }
 
@@ -669,9 +961,7 @@ class MainActivity : AppCompatActivity() {
             view.findViewById<EditText>(R.id.activitySmallImage).visibility = visibility
             view.findViewById<EditText>(R.id.activitySmallText).visibility = visibility
             view.findViewById<EditText>(R.id.activityButton1Label).visibility = visibility
-            view.findViewById<EditText>(R.id.activityButton1URL).visibility = visibility
             view.findViewById<EditText>(R.id.activityButton2Label).visibility = visibility
-            view.findViewById<EditText>(R.id.activityButton2URL).visibility = visibility
             if(view.findViewById<SwitchMaterial>(R.id.showAll).isChecked && visibility == View.VISIBLE) showAllSwitch(View.VISIBLE, view) else showAllSwitch(View.GONE, view)
             when (spinner.selectedItemPosition) {
                 1 -> {
@@ -700,6 +990,34 @@ class MainActivity : AppCompatActivity() {
         override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?) : View? {
             super.onCreateView(inflater, container, savedInstanceState)
             return inflater.inflate(R.layout.load, container,false)
+        }
+    }
+
+    class Log : Fragment() {
+        private lateinit var textView: TextView
+        private var logReceiver = object : BroadcastReceiver() {
+            override fun onReceive(p0: Context?, intent: Intent?) {
+                if(textView.text == getString(R.string.no_log_here)) textView.text = ""
+                textView.append(intent?.extras?.getString("new"))
+            }
+        }
+
+        override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?) : View? {
+            super.onCreateView(inflater, container, savedInstanceState)
+            return inflater.inflate(R.layout.view_log, container,false)
+        }
+
+        override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+            super.onViewCreated(view, savedInstanceState)
+            textView = view.findViewById(R.id.logTextView)
+            val file = File(requireContext().filesDir, "WebSocket.log")
+            if(file.exists()) { textView.text = file.readText(Charsets.UTF_8) }
+            requireContext().registerReceiver(logReceiver, IntentFilter("ServiceLog"))
+        }
+
+        override fun onDestroy() {
+            super.onDestroy()
+            requireContext().unregisterReceiver(logReceiver)
         }
     }
 
@@ -885,5 +1203,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         var ACTIVITY_ENABLED = false
+
+        var CONNECTED = false
     }
 }
