@@ -43,7 +43,11 @@ class Service : Service() {
             addCategory(Intent.CATEGORY_LAUNCHER)
             flags = Intent.FLAG_ACTIVITY_NEW_TASK
         }
-        val pendingIntent = PendingIntent.getActivity(applicationContext, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
+        val pendingIntent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            PendingIntent.getActivity(applicationContext, 0, intent, PendingIntent.FLAG_IMMUTABLE)
+        } else {
+            PendingIntent.getActivity(applicationContext, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
+        }
         val builder = NotificationCompat.Builder(this, getString(R.string.notification_service_id))
             .setSmallIcon(R.mipmap.ic_launcher_round)
             .setContentTitle("Discord Presence")
@@ -209,7 +213,11 @@ class Service : Service() {
                 addCategory(Intent.CATEGORY_LAUNCHER)
                 flags = Intent.FLAG_ACTIVITY_NEW_TASK
             }
-            val pendingIntent = PendingIntent.getActivity(applicationContext, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
+            val pendingIntent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                PendingIntent.getActivity(applicationContext, 0, intent, PendingIntent.FLAG_IMMUTABLE)
+            } else {
+                PendingIntent.getActivity(applicationContext, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
+            }
             val builder = NotificationCompat.Builder(this@Service, getString(R.string.notification_error_id))
                 .setSmallIcon(R.mipmap.ic_launcher_round)
                 .setContentTitle(title)
