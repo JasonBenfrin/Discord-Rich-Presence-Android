@@ -22,7 +22,7 @@
     <string name="about_me">About Me</string>
     <string name="about_me_text">I am a 17 years old (2004) student developing awesome Discord bots and apps in my free time.\nI enjoy doing this. I\'m moving to Finland in about 6 months (now: 1/6/2022) for my education.</string>
     <string name="info">Information</string>
-    <string name="information">Version: 1.0.0\nGitHub: JasonBenfrin/Discord-Rich-Presence-Android</string>
+    <string name="information">Version: 1.1.0\nGitHub: JasonBenfrin/Discord-Rich-Presence-Android</string>
     <string name="go_to_github">Go to Github</string>
     <string name="infoscrollview">InfoScrollView</string>
     <string name="settings">Settings</string>
