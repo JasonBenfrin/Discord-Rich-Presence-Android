@@ -17,7 +17,7 @@
     <string name="login">Login</string>
     <string name="disclaimer">Disclaimer</string>
     <string name="text">This app is made for Educational purposes.\nThe creator of this app is not responsible for token leaks.\nThe developer doesn\'t collect data in any way, including tokens.\nUse it as your own risk.</string>
-    <string name="creditsTo">This app was massively inspired by yzziK#3050\nCheck out his YouTube channel Vaibhav..</string>
+    <string name="creditsTo">This app is massively inspired by yzziK#3050\nCheck out his YouTube channel Vaibhav..</string>
     <string name="credits">Credits</string>
     <string name="about_me">About Me</string>
     <string name="about_me_text">I am a 17 years old (2004) student developing awesome Discord bots and apps in my free time.\nI enjoy doing this. I\'m moving to Finland in about 6 months (now: 1/6/2022) for my education.</string>
@@ -75,6 +75,7 @@
     <string name="view_log">View Log</string>
     <string name="no_log_here">No Log here</string>
     <string name="save_current">Save Current</string>
+    <string name="activity_flags">Activity Flags</string>
     <string-array name="activity_types">
         <item>Playing</item>
         <item>Streaming</item>

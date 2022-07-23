@@ -86,7 +86,7 @@
                 app:layout_constraintEnd_toStartOf="@+id/guideline19"
                 app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toStartOf="@+id/guideline16"
-                app:layout_constraintTop_toBottomOf="@+id/activityButton2Label" />
+                app:layout_constraintTop_toBottomOf="@+id/activityButton2URL" />
 
             <Button
                 android:id="@+id/activityTimestampStart"
@@ -369,6 +369,22 @@
                 tools:ignore="TextFields" />
 
             <EditText
+                android:id="@+id/activityButton1URL"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:hint="@string/button_1_url"
+                android:inputType="textUri"
+                android:textColor="@color/menu_text"
+                android:textColorHint="@color/text_hint"
+                android:textSize="16sp"
+                app:layout_constraintEnd_toStartOf="@+id/guideline19"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="@+id/guideline16"
+                app:layout_constraintTop_toBottomOf="@+id/activityButton1Label"
+                tools:ignore="TextFields" />
+
+            <EditText
                 android:id="@+id/activityButton2Label"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -381,7 +397,39 @@
                 app:layout_constraintEnd_toStartOf="@+id/guideline19"
                 app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toStartOf="@+id/guideline16"
-                app:layout_constraintTop_toBottomOf="@+id/activityButton1Label"
+                app:layout_constraintTop_toBottomOf="@+id/activityButton1URL"
+                tools:ignore="TextFields" />
+
+            <EditText
+                android:id="@+id/activityButton2URL"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:hint="@string/button_2_url"
+                android:inputType="textUri"
+                android:textColor="@color/menu_text"
+                android:textColorHint="@color/text_hint"
+                android:textSize="16sp"
+                app:layout_constraintEnd_toStartOf="@+id/guideline19"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="@+id/guideline16"
+                app:layout_constraintTop_toBottomOf="@+id/activityButton2Label"
+                tools:ignore="TextFields" />
+
+            <EditText
+                android:id="@+id/activityFlags"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:hint="@string/activity_flags"
+                android:inputType="number"
+                android:textColor="@color/menu_text"
+                android:textColorHint="@color/text_hint"
+                android:textSize="16sp"
+                app:layout_constraintEnd_toStartOf="@+id/guideline19"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="@+id/guideline16"
+                app:layout_constraintTop_toBottomOf="@+id/activityCreatedAt"
                 tools:ignore="TextFields" />
 
             <com.google.android.material.switchmaterial.SwitchMaterial

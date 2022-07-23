@@ -252,7 +252,7 @@ class MainActivity : AppCompatActivity() {
                     textView.text = "Testing the extracted token, please wait..."
                     Thread {
                         val request =
-                            Request.Builder().url("wss://gateway.discord.gg/?v=9&encoding=json").build()
+                            Request.Builder().url("wss://gateway.discord.gg/?v=10&encoding=json").build()
                         val listener = context?.let { TestDiscordGatewayWebSocket(this, it, view) }
                         val client = OkHttpClient()
                         client.newWebSocket(request, listener)
@@ -304,7 +304,7 @@ class MainActivity : AppCompatActivity() {
                     textView.text = "Testing the extracted token, please wait..."
                     Thread {
                         val request =
-                            Request.Builder().url("wss://gateway.discord.gg/?v=9&encoding=json").build()
+                            Request.Builder().url("wss://gateway.discord.gg/?v=10&encoding=json").build()
                         val listener = context?.let { TestDiscordGatewayWebSocket(this, it, viewT) }
                         val client = OkHttpClient()
                         client.newWebSocket(request, listener)
@@ -352,7 +352,9 @@ class MainActivity : AppCompatActivity() {
         }
 
         fun updateFailure() {
-            viewT.findViewById<TextView>(R.id.textView4)?.text = "Failed to test the token. Please Logout and Login again"
+            requireActivity().runOnUiThread{
+                viewT.findViewById<TextView>(R.id.textView4)?.text = "Failed to test the token. Please Logout and Login again"
+            }
         }
     }
 
@@ -593,7 +595,7 @@ class MainActivity : AppCompatActivity() {
                     ACTIVITY_ENABLED = true
                     if(!file.exists()) {
                         json = JsonObject().apply {
-                            addProperty("name", "\u200b")
+                            addProperty("name", "")
                             addProperty("type", 0)
                             addProperty("created_at", System.currentTimeMillis())
                         }
@@ -618,9 +620,11 @@ class MainActivity : AppCompatActivity() {
             var partySizeMin : Int? = null
             var partySizeMax : Int? = null
             var button1Text = ""
+            var button1URL = ""
             var button2Text = ""
+            var button2URL = ""
             val activityName = view.findViewById<EditText>(R.id.activityName).apply {
-                addTextChangedListener { jsonUpdate("name", it.toString(), "\u200b") }
+                addTextChangedListener { jsonUpdate("name", it.toString(), "") }
             }
             val activityDetails = view.findViewById<EditText>(R.id.activityDetails).apply {
                 addTextChangedListener { jsonUpdate("details", it.toString(), null) }
@@ -812,59 +816,172 @@ class MainActivity : AppCompatActivity() {
                     buttonUpdate(button1Text, button2Text)
                 }
             }
+            val activityButton1URL = view.findViewById<EditText>(R.id.activityButton1URL).apply{
+                addTextChangedListener {
+                    button1URL = it.toString()
+                    buttonURLUpdate(button1URL, button2URL)
+                }
+            }
             val activityButton2Label = view.findViewById<EditText>(R.id.activityButton2Label).apply {
                 addTextChangedListener {
                     button2Text = it.toString()
                     buttonUpdate(button1Text, button2Text)
                 }
             }
-            if(file.exists()) {
-                json = JsonParser.parseString(file.readText(Charsets.UTF_8)).asJsonObject
-                if(json.has("name") && !json.get("name").isJsonNull) activityName.setText(json.get("name").asString, TextView.BufferType.EDITABLE)
-                if(json.has("type") && !json.get("type").isJsonNull) activityType.setSelection(json.get("type").asInt)
-                if(json.has("url") && !json.get("url").isJsonNull) activityURL.setText(json.get("url").asString, TextView.BufferType.EDITABLE)
-                if(json.has("application_id") && !json.get("application_id").isJsonNull) activityApplicationId.setText(json.get("application_id").asString, TextView.BufferType.EDITABLE)
-                if(json.has("details") && !json.get("details").isJsonNull) activityDetails.setText(json.get("details").asString, TextView.BufferType.EDITABLE)
-                if(json.has("state") && !json.get("state").isJsonNull) activityPartyState.setText(json.get("state").asString, TextView.BufferType.EDITABLE)
-                if(json.has("emoji") && !json.get("emoji").isJsonNull) {
-                    val emoji = json.get("emoji").asJsonObject
-                    if(emoji.has("name") && !emoji.get("name").isJsonNull) emojiName.setText(emoji.get("name").asString, TextView.BufferType.EDITABLE)
-                    if(emoji.has("id") && !emoji.get("id").isJsonNull) emojiId.setText(emoji.get("id").asString, TextView.BufferType.EDITABLE)
-                    if(emoji.has("animated") && !emoji.get("animated").isJsonNull) emojiAnimated.isChecked = emoji.get("animated").asBoolean
-                }
-                if(json.has("party") && !json.get("party").isJsonNull) {
-                    val party = json.get("party").asJsonObject
-                    if(party.has("id") && !party.get("id").isJsonNull) activityPartyId.setText(party.get("id").asString, TextView.BufferType.EDITABLE)
-                    if(party.has("size") && !party.get("size").isJsonNull) {
-                        val partySize = party.get("size").asJsonArray
-                        activityPartySizeMin.setText(partySize[0].asString, TextView.BufferType.EDITABLE)
-                        activityPartySizeMax.setText(partySize[1].asString, TextView.BufferType.EDITABLE)
-                    }
-                }
-                if(json.has("assets") && !json.get("assets").isJsonNull) {
-                    val assets = json.get("assets").asJsonObject
-                    if(assets.has("large_image") && !assets.get("large_image").isJsonNull) activityLargeImage.setText(assets.get("large_image").asString, TextView.BufferType.EDITABLE)
-                    if(assets.has("large_text") && !assets.get("large_text").isJsonNull) activityLargeText.setText(assets.get("large_text").asString, TextView.BufferType.EDITABLE)
-                    if(assets.has("small_image") && !assets.get("small_image").isJsonNull) activitySmallImage.setText(assets.get("small_image").asString, TextView.BufferType.EDITABLE)
-                    if(assets.has("small_text") && !assets.get("small_text").isJsonNull) activitySmallText.setText(assets.get("small_text").asString, TextView.BufferType.EDITABLE)
-                }
-                if(json.has("secrets") && !json.get("secrets").isJsonNull) {
-                    val secrets = json.get("secrets").asJsonObject
-                    if(secrets.has("join") && !secrets.get("join").isJsonNull) activitySecretJoin.setText(secrets.get("join").asString, TextView.BufferType.EDITABLE)
-                    if(secrets.has("spectate") && !secrets.get("spectate").isJsonNull) activitySecretSpectate.setText(secrets.get("spectate").asString, TextView.BufferType.EDITABLE)
-                    if(secrets.has("match") && !secrets.get("match").isJsonNull) activitySecretMatch.setText(secrets.get("match").asString, TextView.BufferType.EDITABLE)
-                }
-                if(json.has("instance") && !json.get("instance").isJsonNull) activityInstanced.isChecked = json.get("instance").asBoolean
-                if(json.has("buttons") && !json.get("buttons").isJsonNull) {
-                    val buttons = json.get("buttons").asJsonArray
-                    if(buttons.size() == 1) {
-                        activityButton1Label.setText(buttons[0].asString, TextView.BufferType.EDITABLE)
-                    }else{
-                        activityButton1Label.setText(buttons[0].asString, TextView.BufferType.EDITABLE)
-                        activityButton2Label.setText(buttons[1].asString, TextView.BufferType.EDITABLE)
-                    }
+            val activityButton2URL = view.findViewById<EditText>(R.id.activityButton2URL).apply{
+                addTextChangedListener {
+                    button2URL = it.toString()
+                    buttonURLUpdate(button1URL, button2URL)
                 }
             }
+            val activityFlags = view.findViewById<EditText>(R.id.activityFlags).apply {
+                addTextChangedListener {
+                    if(it.toString() != "") jsonUpdate("flags", it.toString().toInt())
+                    else jsonRemove("flags")
+                }
+            }
+            fun updateLayout() {
+                if (file.exists()) {
+                    json = JsonParser.parseString(file.readText(Charsets.UTF_8)).asJsonObject
+                    if (json.has("name") && !json.get("name").isJsonNull) activityName.setText(
+                        json.get(
+                            "name"
+                        ).asString, TextView.BufferType.EDITABLE
+                    )
+                    if (json.has("type") && !json.get("type").isJsonNull) activityType.setSelection(
+                        json.get("type").asInt
+                    )
+                    if (json.has("url") && !json.get("url").isJsonNull) activityURL.setText(
+                        json.get(
+                            "url"
+                        ).asString, TextView.BufferType.EDITABLE
+                    )
+                    if (json.has("application_id") && !json.get("application_id").isJsonNull) activityApplicationId.setText(
+                        json.get("application_id").asString,
+                        TextView.BufferType.EDITABLE
+                    )
+                    if (json.has("details") && !json.get("details").isJsonNull) activityDetails.setText(
+                        json.get("details").asString,
+                        TextView.BufferType.EDITABLE
+                    )
+                    if (json.has("state") && !json.get("state").isJsonNull) activityPartyState.setText(
+                        json.get("state").asString,
+                        TextView.BufferType.EDITABLE
+                    )
+                    if (json.has("emoji") && !json.get("emoji").isJsonNull) {
+                        val emoji = json.get("emoji").asJsonObject
+                        if (emoji.has("name") && !emoji.get("name").isJsonNull) emojiName.setText(
+                            emoji.get("name").asString,
+                            TextView.BufferType.EDITABLE
+                        )
+                        if (emoji.has("id") && !emoji.get("id").isJsonNull) emojiId.setText(
+                            emoji.get(
+                                "id"
+                            ).asString, TextView.BufferType.EDITABLE
+                        )
+                        if (emoji.has("animated") && !emoji.get("animated").isJsonNull) emojiAnimated.isChecked =
+                            emoji.get("animated").asBoolean
+                    }
+                    if (json.has("party") && !json.get("party").isJsonNull) {
+                        val party = json.get("party").asJsonObject
+                        if (party.has("id") && !party.get("id").isJsonNull) activityPartyId.setText(
+                            party.get("id").asString,
+                            TextView.BufferType.EDITABLE
+                        )
+                        if (party.has("size") && !party.get("size").isJsonNull) {
+                            val partySize = party.get("size").asJsonArray
+                            activityPartySizeMin.setText(
+                                partySize[0].asString,
+                                TextView.BufferType.EDITABLE
+                            )
+                            activityPartySizeMax.setText(
+                                partySize[1].asString,
+                                TextView.BufferType.EDITABLE
+                            )
+                        }
+                    }
+                    if (json.has("assets") && !json.get("assets").isJsonNull) {
+                        val assets = json.get("assets").asJsonObject
+                        if (assets.has("large_image") && !assets.get("large_image").isJsonNull) activityLargeImage.setText(
+                            assets.get("large_image").asString,
+                            TextView.BufferType.EDITABLE
+                        )
+                        if (assets.has("large_text") && !assets.get("large_text").isJsonNull) activityLargeText.setText(
+                            assets.get("large_text").asString,
+                            TextView.BufferType.EDITABLE
+                        )
+                        if (assets.has("small_image") && !assets.get("small_image").isJsonNull) activitySmallImage.setText(
+                            assets.get("small_image").asString,
+                            TextView.BufferType.EDITABLE
+                        )
+                        if (assets.has("small_text") && !assets.get("small_text").isJsonNull) activitySmallText.setText(
+                            assets.get("small_text").asString,
+                            TextView.BufferType.EDITABLE
+                        )
+                    }
+                    if (json.has("secrets") && !json.get("secrets").isJsonNull) {
+                        val secrets = json.get("secrets").asJsonObject
+                        if (secrets.has("join") && !secrets.get("join").isJsonNull) activitySecretJoin.setText(
+                            secrets.get("join").asString,
+                            TextView.BufferType.EDITABLE
+                        )
+                        if (secrets.has("spectate") && !secrets.get("spectate").isJsonNull) activitySecretSpectate.setText(
+                            secrets.get("spectate").asString,
+                            TextView.BufferType.EDITABLE
+                        )
+                        if (secrets.has("match") && !secrets.get("match").isJsonNull) activitySecretMatch.setText(
+                            secrets.get("match").asString,
+                            TextView.BufferType.EDITABLE
+                        )
+                    }
+                    if (json.has("instance") && !json.get("instance").isJsonNull) activityInstanced.isChecked =
+                        json.get("instance").asBoolean
+                    if (json.has("buttons") && !json.get("buttons").isJsonNull) {
+                        val buttons = json.get("buttons").asJsonArray
+                        if (buttons.size() == 1) {
+                            activityButton1Label.setText(
+                                buttons[0].asString,
+                                TextView.BufferType.EDITABLE
+                            )
+                        } else {
+                            activityButton1Label.setText(
+                                buttons[0].asString,
+                                TextView.BufferType.EDITABLE
+                            )
+                            activityButton2Label.setText(
+                                buttons[1].asString,
+                                TextView.BufferType.EDITABLE
+                            )
+                        }
+                    }
+                    if (json.has("metadata") && !json.get("metadata").isJsonNull) {
+                        val metadata = json.get("metadata").asJsonObject
+                        if (metadata.has("button_urls") && !metadata.get("button_urls").isJsonNull) {
+                            val urls = json.get("metadata").asJsonObject.get("button_urls").asJsonArray
+                            if (urls.size() == 1) {
+                                activityButton1URL.setText(
+                                    urls[0].asString,
+                                    TextView.BufferType.EDITABLE
+                                )
+                            } else {
+                                activityButton1URL.setText(
+                                    urls[0].asString,
+                                    TextView.BufferType.EDITABLE
+                                )
+                                activityButton2URL.setText(
+                                    urls[1].asString,
+                                    TextView.BufferType.EDITABLE
+                                )
+                            }
+                        }
+                    }
+                    if (json.has("flags") && !json.get("flags").isJsonNull) activityFlags.setText(
+                        json.get("flags").asString,
+                        TextView.BufferType.EDITABLE
+                    )
+                }
+            }
+            updateLayout()
             activity.isChecked = ACTIVITY_ENABLED
         }
 
@@ -882,6 +999,22 @@ class MainActivity : AppCompatActivity() {
                 if (text2 != "") add(text2)
             })
             if(text1 == "" && text2 == "" && json.has("buttons")) jsonRemove("buttons")
+        }
+
+        private fun buttonURLUpdate(url1: String, url2: String) {
+            jsonUpdate("metadata", JsonObject().apply {
+                if(url1 != "" || url2 != "") {
+                    if (!json.has("application_id")) jsonUpdate("application_id", "978135236372234282", "")
+                    add("button_urls", JsonArray().apply {
+                        if (url1 != "") add(url1)
+                        if (url2 != "") add(url2)
+                    })
+                }
+            })
+            if(url1 == "" && url2 == "" && json.has("metadata") && json.get("metadata").asJsonObject.has("button_urls")) {
+                jsonRemove("metadata")
+                if (json.get("application_id").asString == "978135236372234282") jsonRemove("application_id")
+            }
         }
 
         private fun secretUpdate(json: JsonObject) {
@@ -994,6 +1127,7 @@ class MainActivity : AppCompatActivity() {
             view.findViewById<EditText>(R.id.activitySecretMatch).visibility = visibility
             view.findViewById<CheckBox>(R.id.activityInstanced).visibility = visibility
             view.findViewById<Button>(R.id.activityCreatedAt).visibility = visibility
+            view.findViewById<EditText>(R.id.activityFlags).visibility = visibility
         }
 
         private fun activitySwitch(visibility : Int, view: View) {
@@ -1043,6 +1177,8 @@ class MainActivity : AppCompatActivity() {
                     emojiAnimated.visibility = View.GONE
                 }
             }
+            view.findViewById<EditText>(R.id.activityButton1URL).visibility = visibility
+            view.findViewById<EditText>(R.id.activityButton2URL).visibility = visibility
         }
     }
 
@@ -1156,9 +1292,11 @@ class MainActivity : AppCompatActivity() {
                                     val payload = File(requireContext().cacheDir, "payload")
                                     val activity = File(requireContext().cacheDir, "activity")
                                     val loadFile = child.readText(Charsets.UTF_8)
-                                    payload.writeText(loadFile.split("\n")[0])
-                                    activity.writeText(loadFile.split("\n")[1])
-                                    ACTIVITY_ENABLED = loadFile.split("\n")[2].toBoolean()
+                                    try{
+                                        payload.writeText(loadFile.split("\n")[0])
+                                        activity.writeText(loadFile.split("\n")[1])
+                                        ACTIVITY_ENABLED = loadFile.split("\n")[2].toBoolean()
+                                    } catch (_:Exception) {}
                                     requireContext().sendBroadcast(Intent("LoadConnect"))
                                 }
                             }
